@@ -1,4 +1,4 @@
-package MainGame;
+package Controller;
 
 import java.net.URL;
 import java.util.ResourceBundle;
@@ -8,7 +8,7 @@ import javafx.scene.Scene;
 import javafx.scene.input.MouseEvent;
 import javafx.stage.Stage;
 
-public class Controller_Launcher{
+public class Launcher{
 	private Scene scene;
 	private Stage stage;
 	
@@ -22,17 +22,21 @@ public class Controller_Launcher{
 	@FXML
 	void LoadGame(MouseEvent event){
 		System.out.println("按照当前设置加载游戏 <Scene_MainGame> ");
-		
+//		this.scene = Scene_Choose_Mode;
+//		GameSetter iSetter = new GameSetter();
 	}
 	
+	// 排行榜
 	@FXML
 	void LoadRank(MouseEvent event){
 		System.out.println("加载排行榜 <Scene_Rank> ");
 	}
 	
+	// 加载游戏设置
 	@FXML
 	void LoadSettings(MouseEvent event){
 		System.out.println("加载设置界面 <Scene_Settings>");
+//		GameSetter iSetter
 	}
 	
 	@FXML

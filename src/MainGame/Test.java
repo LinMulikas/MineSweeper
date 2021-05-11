@@ -6,7 +6,7 @@ import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.stage.Stage;
 
-public class Main extends Application{
+public class Test extends Application{
     
     /**
      * 本地段预计使用Pane布局，设计Image类型的数组来储存对象
