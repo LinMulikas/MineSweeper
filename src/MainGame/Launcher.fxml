@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.layout.AnchorPane?>
+<?import javafx.scene.text.Font?>
+
+<AnchorPane prefHeight="400.0" prefWidth="600.0" xmlns="http://javafx.com/javafx/16" xmlns:fx="http://javafx.com/fxml/1"
+            fx:controller="MainGame.Controller_Launcher">
+   <children>
+      <Button layoutX="221.0" layoutY="87.0" mnemonicParsing="false" onMouseClicked="#LoadGame" prefHeight="47.0"
+              prefWidth="158.0" text="启动游戏">
+         <font>
+            <Font size="24.0"/>
+         </font>
+      </Button>
+      <Button layoutX="221.0" layoutY="268.0" mnemonicParsing="false" onMouseClicked="#LoadRank" prefHeight="47.0"
+              prefWidth="158.0" text="排行榜">
+         <font>
+            <Font size="24.0"/>
+         </font>
+      </Button>
+      <Button layoutX="221.0" layoutY="176.0" mnemonicParsing="false" onMouseClicked="#LoadSettings" prefHeight="47.0"
+              prefWidth="158.0" text="游戏设置">
+         <font>
+            <Font size="24.0"/>
+         </font>
+      </Button>
+   </children>
+</AnchorPane>
