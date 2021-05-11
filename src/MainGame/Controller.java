@@ -1,4 +1,4 @@
-package sample;
+package MainGame;
 
 import java.net.URL;
 import java.util.ResourceBundle;
