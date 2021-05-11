@@ -18,8 +18,16 @@ public class Game extends Application{
 	public void start(Stage primaryStage){
 		try{
 			// 加载Launcher.fxml中绘制的界面
-			Parent root = FXMLLoader.load(getClass().getResource("Launcher.fxml"));
-			Scene scene_launcher = new Scene(root);
+			FXMLLoader fxmlLoader = new FXMLLoader(getClass().getResource("Launcher.fxml"));
+			// 动态读取界面
+			Parent root = fxmlLoader.load();
+			Scene scene_launcher = new Scene(root, 600, 400);
+			
+			Controller_Launcher controller = fxmlLoader.getController();
+			
+			controller.setStage(primaryStage);
+			controller.setScene(scene_launcher);
+			
 			primaryStage.setTitle("Launcher");
 			primaryStage.setScene(scene_launcher);
 			primaryStage.show();
