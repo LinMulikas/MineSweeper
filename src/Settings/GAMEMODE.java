@@ -1,9 +1,6 @@
 package Settings;
 
-/**
- * 游戏难度调控
- */
-public enum GameMode{
+public enum GAMEMODE{
 	PRIMARY,
 	MIDDLE,
 	HARD,
