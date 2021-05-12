@@ -1,5 +1,6 @@
 package MainGame;
 
+import Settings.Setting;
 import javafx.scene.Scene;
 import jdk.nashorn.internal.runtime.regexp.JoniRegExp;
 
@@ -14,5 +15,8 @@ public class Containers{
 	
 	// Scene 容器
 	public static Map<String, Scene> Map_Scenes = new HashMap<String, Scene>();
+	
+	// Setting 容器
+	public static Map<String, Setting> Map_Setting = new HashMap<String, Setting>();
 	
 }

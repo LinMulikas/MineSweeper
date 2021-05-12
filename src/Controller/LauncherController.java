@@ -9,9 +9,7 @@ import javafx.scene.Scene;
 import javafx.scene.input.MouseEvent;
 import javafx.stage.Stage;
 
-public class ctrl_Launcher extends RootController{
-	private Scene scene;
-	private Stage stage;
+public class LauncherController extends RootController{
 	
 	@FXML
 	private ResourceBundle resources;
@@ -23,6 +21,9 @@ public class ctrl_Launcher extends RootController{
 	@FXML
 	void LoadGame(MouseEvent event){
 		System.out.println("按照当前设置加载游戏 <Scene_MainGame> ");
+		// 进入setting界面
+//		this.stage.setScene();
+		// 退出setting界面，并修改一个setting
 
 //		this.scene = Scene_Choose_Mode;
 //		GameSetter iSetter = new GameSetter();
@@ -45,13 +46,5 @@ public class ctrl_Launcher extends RootController{
 	@FXML
 	void initialize(){
 	
-	}
-	
-	public void setStage(Stage stage){
-		this.stage = stage;
-	}
-	
-	public void setScene(Scene scene){
-		this.scene = scene;
 	}
 }
