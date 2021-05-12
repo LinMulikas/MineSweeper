@@ -4,8 +4,8 @@ import MainGame.Containers;
 
 public class Setting{
 	// 雷区长宽
-	private int BOOMS_WIDTH;
-	private int BOOMS_HEIGHT;
+	private int AreaWidth;
+	private int AreaHeight;
 	// 游戏模式
 	private GAMEMODE myMODE;
 	private SHAPE SHAPE = this.SHAPE.SQUARE;
@@ -24,6 +24,22 @@ public class Setting{
 		switch(iMode){
 		
 		}
+	}
+	
+	public int getAreaWidth(){
+		return AreaWidth;
+	}
+	
+	public void setAreaWidth(int areaWidth){
+		AreaWidth = areaWidth;
+	}
+	
+	public int getAreaHeight(){
+		return AreaHeight;
+	}
+	
+	public void setAreaHeight(int areaHeight){
+		AreaHeight = areaHeight;
 	}
 	
 	// 枚举方块形状

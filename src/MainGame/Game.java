@@ -8,12 +8,11 @@ import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.stage.Stage;
-import resourse.Scene.iScene;
+import Resource.Scene.iScene;
 
 import java.io.IOException;
 
 public class Game extends Application{
-	
 	public static void main(String[] args){
 		launch(args);
 	}
@@ -22,13 +21,15 @@ public class Game extends Application{
 	public void start(Stage primaryStage){
 		try{
 			// 加载 Launcher 界面的，动态读取界面
-			FXMLLoader fxmlLoader = new FXMLLoader(getClass().getResource("../resourse/Scene/LauncherScene.fxml"));
+			FXMLLoader fxmlLoader = new FXMLLoader(getClass().getResource("../Resource/Scene/LauncherScene.fxml"));
 			Parent root = fxmlLoader.load();
 			// 构建所需界面和控制器
 			// 1. 登陆器
 			Scene LauncherScene = new iScene(root, 600, 400);
-			LauncherController iLauncher = fxmlLoader.getController();
-			
+			LauncherController iLauncher = new LauncherController();
+			fxmlLoader.setController(iLauncher);
+
+//			System.out.println(iLauncher);
 			// 2. 设置界面
 			Scene SettingScene;
 			// 设置界面需要向某个游戏实例

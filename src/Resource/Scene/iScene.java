@@ -1,4 +1,4 @@
-package resourse.Scene;
+package Resource.Scene;
 
 import MainGame.Containers;
 import javafx.scene.Parent;
