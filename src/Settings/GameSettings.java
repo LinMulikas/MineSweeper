@@ -2,7 +2,7 @@ package Settings;
 
 import MainGame.Containers;
 
-public class Setting{
+public class GameSettings{
 	// 雷区长宽
 	private int AreaWidth;
 	private int AreaHeight;
@@ -13,11 +13,11 @@ public class Setting{
 	/**
 	 * 默认构造器，初始化默认游戏，区分游戏难度
 	 */
-	public Setting(){
+	public GameSettings(){
 		this.myMODE = GAMEMODE.MIDDLE;
 	}
 	
-	public Setting(GAMEMODE iMode){
+	public GameSettings(GAMEMODE iMode){
 		// 加入容器
 		Containers.Map_Setting.put(this.getClass().getSimpleName(), this);
 		this.myMODE = iMode;

@@ -2,10 +2,13 @@ package GameControl;
 
 import Settings.SHAPE;
 
-abstract class Sweeper{
+public class Sweeper{
 	private SHAPE iSHAPE;
 	
-	// 传入坐标进行扫雷
-	abstract boolean sweep(Position P);
+	static boolean sweep(Position P){
+		System.out.printf("即将清扫(%d,%d)", P.getX(), P.getY());
+		return true;
+	}
 	
 }
+	
