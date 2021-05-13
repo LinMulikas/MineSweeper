@@ -9,7 +9,7 @@ public class Square extends Block{
 	static MouseHandler mouseHandler = new MouseHandler();
 	private Position position = new Position();
 	
-	// 构造器
+	// 构造器s
 	public Square(int id, int x, int y){
 		this.setBlockShape(SHAPE.SQUARE);
 		this.setWidth(40);
