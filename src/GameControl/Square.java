@@ -1,16 +1,15 @@
 package GameControl;
 
-import MainGame.Containers;
-import Resource.Scene.SceneCreater;
 import Settings.SHAPE;
-import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
+import javafx.scene.input.MouseButton;
 import javafx.scene.input.MouseEvent;
 
 public class Square extends Block{
+	static MouseHandler mouseHandler = new MouseHandler();
 	private Position position = new Position();
 	
-	// 构造器
+	// 构造器s
 	public Square(int id, int x, int y){
 		this.setBlockShape(SHAPE.SQUARE);
 		this.setWidth(40);
@@ -32,12 +31,10 @@ public class Square extends Block{
 	public Square(){
 		this.setPrefSize(40, 40);
 		this.setBlockShape(SHAPE.SQUARE);
-		// 按钮被点了
-		this.setOnAction(event -> {
-			System.out.printf("按钮%d被点击,位置(%d,%d)\n", this.getNumIDId(), this.position.getX(), this.position.getY());
-			// 调用扫雷器
-			this.sweep(this.position);
-		});
+//		注册监听
+
+//		被鼠标左键单击
+		this.setOnMouseClicked(mouseHandler);
 		
 	}
 	
@@ -57,4 +54,42 @@ public class Square extends Block{
 		// 调用底层清扫
 		return true;
 	}
+	
+	/**
+	 * 处理器群
+	 */
+	
+	// 鼠标处理器
+	
+	/**
+	 * 鼠标处理器的静态类
+	 */
+	static class MouseHandler implements EventHandler<MouseEvent>{
+		@Override
+		public void handle(MouseEvent event){
+			// 得到点击次数和事件源Object
+			int clickCnt = event.getClickCount();
+			Square iSquare = (Square) event.getSource();
+			MouseButton iButton = event.getButton();
+			
+			// 单击事件
+			if(clickCnt == 1){
+				switch(event.getButton()){
+					case PRIMARY:
+						System.out.printf("按钮%d被左键单击,位置(%d,%d)\n", iSquare.getNumIDId(), iSquare.position.getX(),
+								iSquare.position.getY());
+						iSquare.sweep(iSquare.position);
+						break;
+					case SECONDARY:
+						System.out.printf("按钮%d被右键单击,位置(%d,%d)\n", iSquare.getNumIDId(), iSquare.position.getX(),
+								iSquare.position.getY());
+						iSquare.sweep(iSquare.position);
+				}
+				
+			}
+			
+		}
+		
+	}
+	
 }
