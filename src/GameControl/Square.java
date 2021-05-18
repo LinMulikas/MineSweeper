@@ -8,6 +8,7 @@ import javafx.scene.input.MouseEvent;
 public class Square extends Block{
 	static MouseHandler mouseHandler = new MouseHandler();
 	private Position position = new Position();
+	private int PreNumber;
 	
 	// 构造器
 	public Square(int id, int x, int y){
@@ -31,11 +32,11 @@ public class Square extends Block{
 	public Square(){
 		this.setPrefSize(40, 40);
 		this.setBlockShape(SHAPE.SQUARE);
-//		注册监听
-
-//		被鼠标左键单击
+		this.setStatus(PreStatus.CLOSE);
+		// 注册鼠标处理器
 		this.setOnMouseClicked(mouseHandler);
-		
+		// 初始化数字ID
+		this.setPreNumber(1);
 	}
 	
 	@Override
@@ -52,8 +53,63 @@ public class Square extends Block{
 	@Override
 	boolean sweep(Position P){
 		// 调用底层清扫
+		int x = P.getX();
+		int y = P.getY();
+//		sweepLeft(x, y);
+//		sweepRight(x, y);
+//		sweepUp(x, y);
+//		sweepDown(x, y);
 		return true;
 	}
+	
+	/**
+	 * 视觉更新方法
+	 */
+	public boolean setView(){
+		switch(this.getStatus()){
+			case OPEN:
+				
+				break;
+			case CLOSE:
+				break;
+			case FLAG:
+				break;
+			case BOOM:
+				break;
+		}
+		return true;
+	}
+	
+	public int getPreNumber(){
+		return PreNumber;
+	}
+	
+	public void setPreNumber(int preNumber){
+		PreNumber = preNumber;
+	}
+	
+	/**
+	 * sweep群
+	 */
+//	boolean isOnArea(int x, int y){
+//		if((x >= 0) && (x <=))
+//	}
+//
+//	boolean sweepLeft(int x, int y){
+//
+//	}
+//
+//	boolean sweepRight(int x, int y){
+//
+//	}
+//
+//	boolean sweepUp(int x, int y){
+//
+//	}
+//
+//	boolean sweepDown(int x, int y){
+//
+//	}
 	
 	/**
 	 * 处理器群

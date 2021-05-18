@@ -4,5 +4,5 @@ public enum GAMEMODE{
 	PRIMARY,
 	MIDDLE,
 	HARD,
-	SELF_DESIGN;
+	SELF;
 }

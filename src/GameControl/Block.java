@@ -8,7 +8,8 @@ abstract class Block extends Button{
 	private int XIndex;
 	private int YIndex;
 	private int numID;
-	private BlockStatus iStatus;
+	private PreStatus status;
+	private int PreNumber;
 	
 	abstract int idToX(int id);
 	
@@ -48,9 +49,17 @@ abstract class Block extends Button{
 	
 	abstract boolean sweep(Position P);
 	
-	enum BlockStatus{
+	public PreStatus getStatus(){
+		return status;
+	}
+	
+	public void setStatus(PreStatus status){
+		this.status = status;
+	}
+	
+	enum PreStatus{
 		OPEN,
-		UNOPEN,
+		CLOSE,
 		FLAG,
 		BOOM;
 	}

@@ -3,6 +3,14 @@ package GameControl;
 public class Position{
 	private int x, y;
 	
+	public Position(){
+	}
+	
+	public Position(int x, int y){
+		this.x = x;
+		this.y = y;
+	}
+	
 	public int getX(){
 		return x;
 	}
@@ -19,6 +27,8 @@ public class Position{
 		this.y = y;
 	}
 	
-	// s,g
+	public int toId(){
+		return (this.getY() - 1)*9 + this.getX();
+	}
 	
 }
