@@ -47,7 +47,7 @@ abstract class Block extends Button{
 		this.numID = numID;
 	}
 	
-	abstract boolean sweep(Position P);
+	abstract boolean sweep(int x, int y);
 	
 	public PreStatus getStatus(){
 		return status;

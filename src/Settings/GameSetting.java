@@ -1,6 +1,6 @@
 package Settings;
 
-import MainGame.Game;
+import MainGame.MainGame;
 
 public class GameSetting{
 	public static GameSetting DefaultSetting = new GameSetting(9, 9, GAMEMODE.PRIMARY, SHAPE.SQUARE);
@@ -31,7 +31,7 @@ public class GameSetting{
 	
 	public GameSetting(GAMEMODE iMode){
 		// 加入容器
-		Game.thisGame.Map_Setting.put(this.getClass().getSimpleName(), this);
+		MainGame.thisGame.Map_Setting.put(this.getClass().getSimpleName(), this);
 		this.mode = iMode;
 		switch(iMode){
 		

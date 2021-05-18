@@ -2,14 +2,12 @@ package MainGame;
 
 import GameControl.Position;
 import Resource.Scene.myScenes;
-import Settings.GameSetting;
 import javafx.application.Application;
 import javafx.stage.Stage;
 
-public class Game extends Application{
-	
-	public static Containers thisGame;
-	public static GameSetting thisSetting = GameSetting.DefaultSetting;
+public class MainGame extends Application{
+	// 初始化一个默认设置的游戏
+	public static GameContainers thisGame;
 	
 	public static void main(String[] args){
 		launch(args);
@@ -23,18 +21,13 @@ public class Game extends Application{
 //		String gameName = input.nextLine();
 //		Containers iGame = new Containers(gameName);
 		
-		Containers iGame = new Containers("newGame");
+		GameContainers iGame = new GameContainers("newGame");
 		thisGame = iGame;
 		
 		// 把初始界面加入HashMap
 		iGame.mapStages.put("primaryStage", primaryStage);
 		
-		// 加入初始设置GameSettings
-		thisGame.setSetting(thisSetting);
-		
 		// 显示登录窗口
-		Position p1 = new Position(2, 9);
-		System.out.println(p1.toId());
 		primaryStage.setTitle("Launcher");
 		primaryStage.setScene(myScenes.Launcher);
 		primaryStage.show();
