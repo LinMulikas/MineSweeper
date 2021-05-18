@@ -4,6 +4,7 @@ import GameControl.Square;
 import MainGame.MainGame;
 import Settings.GAMEMODE;
 import javafx.geometry.Orientation;
+import javafx.geometry.Pos;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.layout.FlowPane;
@@ -27,24 +28,32 @@ public class myScenes{
 	
 	/**
 	 * LauncherScene细节
+	 * LauncherScene定位
 	 */
 	static{
+		// flowPane 的基础设置
 		FlowPane flowPane = new FlowPane();
 		flowPane.setOrientation(Orientation.VERTICAL);
+		flowPane.setAlignment(Pos.CENTER);
 		flowPane.setPrefSize(1200, 800);
 		flowPane.setVgap(100);
-		Button btn1 = new Button("开始游戏");
+		flowPane.setStyle(
+				" -fx-background-image: url(" + "file:src/Resource/Image/Useful/Launcher.jpg" + "); " +
+						" -fx-background-size: 120%;");
 		
 		// Launcher界面的基础功能
 		
 		// 按钮1：开始默认游戏
+		Button btn1 = new Button("开始游戏");
+		btn1.setPrefSize(200, 80);
 		btn1.setOnAction(event -> {
 			createGameScene(GAMEMODE.PRIMARY);
 			myScenes.primaryStage.setScene(MainGame.thisGame.mapScenes.get("PrimaryGameScene"));
 		});
 		// 按钮2：进入设置界面
 		Button btn2 = new Button("启动设置");
-		
+		btn2.setPrefSize(200, 80);
+		// 绑定基础功能
 		btn2.setOnAction(event -> {
 			myScenes.primaryStage.setScene(myScenes.SettingScene);
 		});
@@ -65,6 +74,7 @@ public class myScenes{
 			case PRIMARY:
 				GridPane gridPane1 = new GridPane();
 //				Button[] buttons = new Button[81];
+				// 生成block
 				Square[] Blocks = new Square[81];
 				for(int i = 0; i < 81; i++){
 					Blocks[i] = new Square(i + 1);

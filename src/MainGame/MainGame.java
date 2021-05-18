@@ -29,6 +29,7 @@ public class MainGame extends Application{
 		
 		// 显示登录窗口
 		primaryStage.setTitle("Launcher");
+		primaryStage.setResizable(false);
 		primaryStage.setScene(myScenes.Launcher);
 		primaryStage.show();
 		

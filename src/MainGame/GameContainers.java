@@ -2,9 +2,11 @@ package MainGame;
 
 import GameControl.Square;
 import Settings.GameSetting;
+import com.sun.scenario.effect.impl.prism.PrImage;
 import javafx.scene.Scene;
 import javafx.stage.Stage;
 
+import javax.jws.Oneway;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
@@ -13,8 +15,6 @@ public class GameContainers{
 	/**
 	 * 容器群
 	 */
-	// controller 容器
-	public Map<String, Object> Map_Controllers = new HashMap<String, Object>();
 	// Stage 容器
 	public Map<String, Stage> mapStages = new HashMap<String, Stage>();
 	// Scene 容器
@@ -28,6 +28,11 @@ public class GameContainers{
 	private int MaxWidth;
 	private int MaxHeight;
 	private int BoomsNumber;
+	// 用来记录已经开采的位置
+	private ArrayList<Integer> openedID = new ArrayList<>();
+	// 用来记录每一步操作
+	private ArrayList<ArrayList<Integer>> steps = new ArrayList<>();
+	
 	/**
 	 * InnerArea是当前游戏内部的逻辑棋盘
 	 * -1:  Flag
@@ -75,8 +80,7 @@ public class GameContainers{
 	}
 	
 	public void setBlockArea(int[][] area){
-		// 此处待写：将内部棋盘关联到外部棋盘
-//		int length = MainGame.thisGame
+	
 	}
 	
 	public int getCount(){
@@ -129,5 +133,9 @@ public class GameContainers{
 	
 	public void setBoomsNumber(int boomsNumber){
 		BoomsNumber = boomsNumber;
+	}
+	
+	public ArrayList<Integer> getOpenedID(){
+		return openedID;
 	}
 }
