@@ -13,6 +13,21 @@ public class Position{
 		this.y = y;
 	}
 	
+	// 必须已经知道最大宽度才能得到id --> x,y
+	public static int idToX(int id){
+		int y = idToY(id);
+		return (id - (gameStart.thisGame.getWidth())*(y - 1));
+	}
+	
+	public static int idToY(int id){
+		return 1 + (id - 1)/(gameStart.thisGame.getWidth());
+	}
+	
+	public static int positionToId(int x, int y){
+		int id = (y - 1)*gameStart.thisGame.getWidth() + x;
+		return id;
+	}
+	
 	public int getX(){
 		return x;
 	}
@@ -29,18 +44,5 @@ public class Position{
 		this.y = y;
 	}
 	
-	public int toId(){
-		return (this.getY() - 1)*9 + this.getX();
-	}
-	
-	// 必须已经知道最大宽度才能得到id --> x,y
-	public static int toX(int id){
-		int y = toY(id);
-		return (id - (gameStart.thisGame.getWidth())*(y - 1));
-	}
-	
-	public static int toY(int id){
-		return 1 + (id - 1)/(gameStart.thisGame.getWidth());
-	}
 	
 }

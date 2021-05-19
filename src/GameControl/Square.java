@@ -16,8 +16,8 @@ public class Square extends Block{
 	static MouseExited mouseExited = new MouseExited();
 	
 	private Position position = new Position();
-	private int PreNumber;
 	private int X, Y;
+	private PreStatus status;
 	
 	// 构造器
 	public Square(int id, int x, int y){
@@ -27,9 +27,9 @@ public class Square extends Block{
 	
 	public Square(int id){
 		this();
-		this.position.setY(Position.toY(id));
+		this.position.setY(Position.idToY(id));
 		this.setY(this.position.getY());
-		this.position.setX(Position.toX(id));
+		this.position.setX(Position.idToX(id));
 		this.setX(this.position.getX());
 		this.setNumID(id);
 	}
@@ -52,37 +52,41 @@ public class Square extends Block{
 //		);
 	}
 	
-	// 创建一个合理的内部雷区
-	
 	public static boolean createInner(int xExcept, int yExcept){
-		int x = gameStart.thisGame.getWidth();
-		int y = gameStart.thisGame.getHeight();
+		int width = gameStart.thisGame.getWidth();
+		int height = gameStart.thisGame.getHeight();
+		
+		int clickedID = Position.positionToId(xExcept, yExcept);
+//		System.out.println(clickedID);
+		
 		// 最大雷数
 		int boomsNumber = gameStart.thisGame.getBoomsNumber();
+		
 		// 内部雷盘
-		int[][] inner = new int[x][y];
+		int[][] inner = new int[width][height];
 		// 存雷id的列表
 		ArrayList<Integer> boomsID = new ArrayList<>();
 		
 		// 随机初始化指定数量的雷
 		for(int cnt = 0; cnt < boomsNumber; cnt++){
 			Random ran = new Random();
-			int theID = 1 + ran.nextInt(x*y);
-			if(!boomsID.contains(theID)){
+			// 生成雷的id
+			int theID = 1 + ran.nextInt(width*height);
+			// 排除了首发触雷
+			if(theID != clickedID){
 				System.out.printf("第%d个雷,id:%d\n", cnt + 1, theID);
 				boomsID.add(theID);
-				inner[Position.toX(theID) - 1][Position.toY(theID) - 1] = 9;
-				System.out.printf("(%d,%d)是雷.\n", Position.toX(theID), Position.toY(theID));
+				inner[Position.idToX(theID) - 1][Position.idToY(theID) - 1] = 9;
+				System.out.printf("(%d,%d)是雷.\n", Position.idToX(theID), Position.idToY(theID));
+			} else{
+				cnt--;
 			}
 		}
-
-//		if(boomsID.contains(xExcept*yExcept)){
-//
-//		}
 		
 		// 更新其他区域的值并检查密集程度
-		for(int j = 0; j < y; j++){
-			for(int i = 0; i < x; i++){
+		for(int j = 0; j < height; j++){
+			for(int i = 0; i < width; i++){
+				// 排除密集雷
 				if(inner[i][j] == 9){
 					int cntBooms = 0;
 					int px = i + 1;
@@ -140,6 +144,7 @@ public class Square extends Block{
 					}
 					continue;
 				}
+				
 				int px = i + 1;
 				int py = j + 1;
 				// 初始化9个方向的数字
@@ -191,22 +196,21 @@ public class Square extends Block{
 						inner[i][j]++;
 					}
 				}
-				
 			}
 		}
-
-//		// 临时视觉检验
-//		for(int j = 0; j < y; j++){
-//			for(int i = 0; i < x; i++){
-//				System.out.printf("%d ", inner[i][j]);
-//			}
-//			System.out.println();
-//		}
 		
-		// 将生成的内部雷盘绑到当前游戏
+		// 首发必须为空
+		if(inner[xExcept - 1][yExcept - 1] != 0){
+			System.out.println("到了");
+			return false;
+		}
+		
+		// 成功生成了一个可用的InnerArea
 		gameStart.thisGame.setInnerArea(inner);
 		return true;
 	}
+	
+	// 创建一个合理的内部雷区
 	
 	/**
 	 * 检验当前Position是否在界内
@@ -223,109 +227,178 @@ public class Square extends Block{
 		}
 		return false;
 	}
-
-//	public static void setBlockStyle(Square[] blocks){
-//		for(int i = 0; i < blocks.length; i++){
-//			blocks[i].setScheme();
-//		}
-//	}
 	
-	@Override
-	public int idToX(int id){
-		
-		return 0;
+	public PreStatus getStatus(){
+		return status;
 	}
 	
 	@Override
-	public int idToY(int id){
-		return 0;
-	}
-	
-	@Override
-	boolean sweep(int x, int y){
-		return false;
+	public void setStatus(PreStatus status){
+		this.status = status;
+		this.setView(gameStart.thisGame.getScheme());
 	}
 	
 	/**
-	 * 单个雷的视觉更新方法
+	 * <pre>
+	 *     单个方块的打开方法
+	 *     后台更新 stepCount
+	 *     后台更新 stepList
+	 * </pre>
+	 */
+	public void openHere(){
+		
+		int clickID = this.getNumId();
+//		System.out.println(gameStart.thisGame.getCount());
+		//
+		switch(this.findInnerNumber()){
+			case -1:
+				this.setStatus(PreStatus.FLAG);
+				break;
+			case 0:
+				this.setStatus(PreStatus.SAFE);
+				break;
+			case 9:
+				this.setStatus(PreStatus.BOOM);
+				break;
+			case 1:
+				this.setStatus(PreStatus.NUM1);
+				break;
+			case 2:
+				this.setStatus(PreStatus.NUM2);
+				break;
+			case 3:
+				this.setStatus(PreStatus.NUM3);
+				break;
+			case 4:
+				this.setStatus(PreStatus.NUM4);
+				break;
+			case 5:
+				this.setStatus(PreStatus.NUM5);
+				break;
+			case 6:
+				this.setStatus(PreStatus.NUM6);
+				break;
+			case 7:
+				this.setStatus(PreStatus.NUM7);
+				break;
+			case 8:
+				this.setStatus(PreStatus.NUM8);
+				break;
+		}
+		// 改变视觉效果
+		this.setView(gameStart.thisGame.getScheme());
+		// 记录操作(open是强制点击)
+		gameStart.thisGame.getRecorder().getStep().add(clickID);
+	}
+	
+	// 级联扫雷
+	// 当前方块已经被点击，向周围扩散
+	public void sweep(int x, int y){
+		// 储存要打开的id
+		// 如果是安全区域就打开
+		
+		// 向左
+		if(isOnArea(x - 1, y)){
+			if(gameStart.thisGame.getInnerArea()[x - 1][y] == 0){
+				gameStart.thisGame.getABlock(x - 1, y).openHere();
+			}
+		}
+		/**
+		 * 递归出口
+		 */
+		
+		/**
+		 * 递归入口
+		 */
+		// 左侧
+		if(isOnArea(x - 1, y)){
+			// 未被扫再继续递归
+			if(!gameStart.thisGame.getRecorder().getStep().contains(Position.positionToId(x - 1, y))){
+				sweep(x - 1, y);
+			}
+		}
+		
+	}
+	
+	/**
+	 * 更新当前方块的主题
+	 *
+	 * @param iScheme 传入的主题
 	 */
 	public void setView(Scheme iScheme){
 		switch(this.getStatus()){
 			case CLOSE:
-//				if(this.getNumId() == 1){
-//					System.out.println("设置为A");
-//				}
-				
 				this.setStyle(
-						"-fx-background-image: url(" + gameStart.thisGame.getScheme().pics.get("CLOSE") + ");"
+						"-fx-background-image: url(" + iScheme.pics.get("CLOSE") + ");"
 				);
 				break;
 			case FLAG:
+				this.setStyle(
+						"-fx-background-image: url(" + iScheme.pics.get("FLAG") + ");"
+				);
 				break;
 			case BOOM:
+				this.setStyle(
+						"-fx-background-image: url(" + iScheme.pics.get("BOOM") + ");"
+				);
 				break;
 			case SAFE:
+				this.setStyle(
+						"-fx-background-image: url(" + iScheme.pics.get("SAFE") + ");"
+				);
 				break;
 			case NUM1:
+				this.setStyle(
+						"-fx-background-image: url(" + iScheme.pics.get("NUM1") + ");"
+				);
 				break;
 			case NUM2:
+				this.setStyle(
+						"-fx-background-image: url(" + iScheme.pics.get("NUM2") + ");"
+				);
 				break;
 			case NUM3:
+				this.setStyle(
+						"-fx-background-image: url(" + iScheme.pics.get("NUM3") + ");"
+				);
 				break;
 			case NUM4:
+				this.setStyle(
+						"-fx-background-image: url(" + iScheme.pics.get("NUM4") + ");"
+				);
 				break;
 			case NUM5:
+				this.setStyle(
+						"-fx-background-image: url(" + iScheme.pics.get("NUM5") + ");"
+				);
 				break;
 			case NUM6:
+				this.setStyle(
+						"-fx-background-image: url(" + iScheme.pics.get("NUM6") + ");"
+				);
 				break;
 			case NUM7:
+				this.setStyle(
+						"-fx-background-image: url(" + iScheme.pics.get("NUM7") + ");"
+				);
 				break;
 			case NUM8:
-				break;
-			case NUM9:
+				this.setStyle(
+						"-fx-background-image: url(" + iScheme.pics.get("NUM8") + ");"
+				);
 				break;
 		}
-	}
-
-//	boolean sweepHere(int x, int y){
-//
-//	}
-//
-//	boolean sweepLeft(int x, int y){
-//
-//		if(isOnArea(x - 1, y)){
-//
-//		}
-//
-//	}
-//
-//	boolean sweepRight(int x, int y){
-//
-//	}
-//
-//	boolean sweepUp(int x, int y){
-//
-//	}
-//
-//	boolean sweepDown(int x, int y){
-//
-//	}
-	
-	/**
-	 * 处理器群
-	 */
-	
-	// 鼠标处理器
-	public int getPreNumber(){
-		return PreNumber;
 	}
 	
 	/**
 	 * sweep群
 	 */
 	
-	public void setPreNumber(int preNumber){
-		PreNumber = preNumber;
+	public int findInnerNumber(){
+		int i = this.getX() - 1;
+		int j = this.getY() - 1;
+		
+		return gameStart.thisGame.getInnerArea()[i][j];
 	}
 	
 	public int getX(){
@@ -348,6 +421,11 @@ public class Square extends Block{
 		Y = y;
 	}
 	
+	public enum sweepType{
+		CONTINOUS,
+		SINGLE;
+	}
+	
 	/**
 	 * 扫雷核心算法
 	 */
@@ -363,36 +441,59 @@ public class Square extends Block{
 			// 分左右键讨论按键情况
 			switch(event.getButton()){
 				case PRIMARY:
-					// 位置检验
-					System.out.printf("按钮%d被左键单击,位置(%d,%d)\n", iSquare.getNumId(), iSquare.position.getX(),
-							iSquare.position.getY());
-					// 记录点击次数
-					gameStart.thisGame.count();
-					// 计数检验
-					System.out.printf("当前点击了%d次\n", gameStart.thisGame.getCount());
-					// 首击生成棋盘
-					if(gameStart.thisGame.getCount() == 1){
-						boolean judge = false;
-						while(!judge){
-							judge = Square.createInner(iSquare.getX(), iSquare.getY());
+					// 扫雷
+					// 如果点击了未开放的方块
+					if(iSquare.getStatus().equals(PreStatus.CLOSE)){
+						gameStart.thisGame.count();
+						// 位置检验
+						System.out.printf("按钮%d被左键单击,位置(%d,%d)\n",
+								iSquare.getNumId(),
+								iSquare.position.getX(),
+								iSquare.position.getY()
+						);
+						// 记录点击次数
+						
+						// 计数检验
+						System.out.printf("当前点击了%d次\n", gameStart.thisGame.getStepCount());
+						
+						// 首击生成棋盘
+						if(gameStart.thisGame.getStepCount() == 1){
+							boolean judge = false;
+							while(!judge){
+								judge = Square.createInner(iSquare.getX(), iSquare.getY());
+							}
 						}
-					}
-					
-					// 临时视觉
-					// 临时视觉检验
-					for(int j = 0; j < gameStart.thisGame.getHeight(); j++){
-						for(int i = 0; i < gameStart.thisGame.getWidth(); i++){
-							System.out.printf("%d ", gameStart.thisGame.getInnerArea()[i][j]);
+						
+						// 临时视觉检验
+						for(int j = 0; j < gameStart.thisGame.getHeight(); j++){
+							for(int i = 0; i < gameStart.thisGame.getWidth(); i++){
+								System.out.printf("%d ", gameStart.thisGame.getInnerArea()[i][j]);
+							}
+							System.out.println();
 						}
-						System.out.println();
+						iSquare.openHere();
 					}
-					
-					iSquare.sweep(iSquare.position.getX(), iSquare.position.getY());
 					break;
 				case SECONDARY:
-					System.out.printf("按钮%d被右键单击,位置(%d,%d)\n", iSquare.getNumId(), iSquare.position.getX(),
-							iSquare.position.getY());
-					iSquare.sweep(iSquare.position.getX(), iSquare.position.getY());
+					if(gameStart.thisGame.getStepCount() == 0){
+						break;
+					}
+					if(iSquare.getStatus().equals(PreStatus.CLOSE)){
+						gameStart.thisGame.count();
+						System.out.printf("按钮%d被右键单击,位置(%d,%d)\n", iSquare.getNumId(), iSquare.position.getX(),
+								iSquare.position.getY());
+						iSquare.setStatus(PreStatus.FLAG);
+						break;
+					}
+					
+					if(iSquare.getStatus().equals(PreStatus.FLAG)){
+						gameStart.thisGame.count();
+						System.out.printf("按钮%d被右键单击,位置(%d,%d)\n", iSquare.getNumId(), iSquare.position.getX(),
+								iSquare.position.getY());
+						iSquare.setStatus(PreStatus.CLOSE);
+						break;
+					}
+					break;
 			}
 			
 		}
@@ -405,9 +506,13 @@ public class Square extends Block{
 			// 得到事件源方块
 			Square iSquare = (Square) event.getSource();
 			// 设置鼠标悬停图片
-			iSquare.setStyle(
-					"-fx-background-image: url(" + gameStart.thisGame.getScheme().pics.get("ENTER") + ");"
-			);
+			// 排除已经点击方块
+			if(iSquare.getStatus().equals(PreStatus.CLOSE)){
+				iSquare.setStyle(
+						"-fx-background-image: url(" + gameStart.thisGame.getScheme().pics.get("ENTER") + ");"
+				);
+			}
+			
 		}
 	}
 	
@@ -417,9 +522,12 @@ public class Square extends Block{
 		public void handle(MouseEvent event){
 			// 得到事件源方块
 			Square iSquare = (Square) event.getSource();
-			iSquare.setStyle(
-					"-fx-background-image: url(" + gameStart.thisGame.getScheme().pics.get("CLOSE") + ");"
-			);
+			
+			if(iSquare.getStatus().equals(PreStatus.CLOSE)){
+				iSquare.setStyle(
+						"-fx-background-image: url(" + gameStart.thisGame.getScheme().pics.get("CLOSE") + ");"
+				);
+			}
 		}
 	}
 }

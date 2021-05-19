@@ -6,12 +6,8 @@ abstract class Block extends Button{
 	private int XIndex;
 	private int YIndex;
 	private int numID;
-	private PreStatus status;
+	
 	private int PreNumber;
-	
-	abstract int idToX(int id);
-	
-	abstract int idToY(int id);
 	
 	public int getXIndex(){
 		return XIndex;
@@ -37,15 +33,7 @@ abstract class Block extends Button{
 		this.numID = numID;
 	}
 	
-	abstract boolean sweep(int x, int y);
-	
-	public PreStatus getStatus(){
-		return status;
-	}
-	
-	public void setStatus(PreStatus status){
-		this.status = status;
-	}
+	abstract void setStatus(PreStatus status);
 	
 	enum PreStatus{
 		CLOSE,
@@ -60,7 +48,6 @@ abstract class Block extends Button{
 		NUM6,
 		NUM7,
 		NUM8,
-		NUM9;
 	}
 }
 

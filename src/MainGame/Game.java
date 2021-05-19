@@ -1,5 +1,6 @@
 package MainGame;
 
+import GameControl.Position;
 import GameControl.Square;
 import Resource.Scheme.Scheme;
 import javafx.scene.Scene;
@@ -18,6 +19,7 @@ public class Game{
 	public Stage stage = new Stage();
 	// Scene 容器
 	public Map<String, Scene> mapScenes = new HashMap<>();
+	private Square.sweepType sweepType;
 	// Scheme
 	private Scheme scheme;
 	/**
@@ -35,8 +37,8 @@ public class Game{
 	
 	//========================================初始化必需的属性
 	private GAMEMODE GameMode;
-	private Recorder recorder;
-	private int count = 0;
+	private Recorder recorder = new Recorder();
+	private int stepCount = 0;
 	
 	// Inner群
 	
@@ -56,6 +58,7 @@ public class Game{
 	 */
 	public Game(){
 		this.setGameMode(GAMEMODE.PRIMARY);
+		this.sweepType = Square.sweepType.SINGLE;
 	}
 	
 	public Game(GAMEMODE gamemode, Scheme iScheme){
@@ -79,20 +82,24 @@ public class Game{
 		this.Blocks = blocks;
 	}
 	
+	public Square getABlock(int x, int y){
+		return Blocks[Position.positionToId(x, y) - 1];
+	}
+	
 	public void setBlockArea(int[][] area){
 	
 	}
 	
-	public int getCount(){
-		return count;
+	public int getStepCount(){
+		return stepCount;
 	}
 	
-	public void setCount(int count){
-		this.count = count;
+	public void setStepCount(int stepCount){
+		this.stepCount = stepCount;
 	}
 	
 	public void count(){
-		this.count++;
+		this.stepCount++;
 	}
 	
 	public int[][] getInnerArea(){
@@ -114,31 +121,6 @@ public class Game{
 	public void setBlocksView(){
 		for(Square item : this.Blocks){
 			item.setView(gameStart.thisGame.scheme);
-		}
-	}
-	
-	/**
-	 * 按照某个难度创建游戏
-	 *
-	 * @param gameMode
-	 */
-	public void setGameMode(GAMEMODE gameMode){
-		switch(gameMode){
-			case PRIMARY:
-				this.Width = 9;
-				this.Height = 9;
-				this.BoomsNumber = 10;
-				break;
-			case MIDDLE:
-				this.Width = 16;
-				this.Height = 16;
-				this.BoomsNumber = 40;
-				break;
-			case HARD:
-				this.Width = 30;
-				this.Height = 16;
-				this.BoomsNumber = 99;
-				break;
 		}
 	}
 	
@@ -174,8 +156,40 @@ public class Game{
 		this.scheme = scheme;
 	}
 	
+	public void setBlocksScheme(Scheme iScheme){
+		this.scheme = iScheme;
+		for(Square item : this.getBlocks()){
+			item.setView(iScheme);
+		}
+	}
+	
 	public GAMEMODE getGameMode(){
 		return GameMode;
+	}
+	
+	/**
+	 * 按照某个难度创建游戏
+	 *
+	 * @param gameMode
+	 */
+	public void setGameMode(GAMEMODE gameMode){
+		switch(gameMode){
+			case PRIMARY:
+				this.Width = 9;
+				this.Height = 9;
+				this.BoomsNumber = 10;
+				break;
+			case MIDDLE:
+				this.Width = 16;
+				this.Height = 16;
+				this.BoomsNumber = 40;
+				break;
+			case HARD:
+				this.Width = 30;
+				this.Height = 16;
+				this.BoomsNumber = 99;
+				break;
+		}
 	}
 	
 	public int getMaxBoomsNumber(){
@@ -186,6 +200,14 @@ public class Game{
 		MaxBoomsNumber = maxBoomsNumber;
 	}
 	
+	public Square.sweepType getSweepType(){
+		return sweepType;
+	}
+	
+	public void setSweepType(Square.sweepType sweepType){
+		this.sweepType = sweepType;
+	}
+	
 	public enum GAMEMODE{
 		PRIMARY,
 		MIDDLE,
@@ -194,13 +216,29 @@ public class Game{
 	}
 	
 	public static class Recorder{
-		private static ArrayList<ArrayList<Integer>> stepList = new ArrayList<>();
-		private int stepCount = 0;
+		private ArrayList<ArrayList<Integer>> stepList = new ArrayList<>();
+		private ArrayList<Integer> step = new ArrayList<>();
 		
-		// ======
-		public Recorder(){
-		
+		// 记录每一步
+		public void update(){
+			this.stepList.add(this.step);
 		}
 		
+		public ArrayList<ArrayList<Integer>> getStepList(){
+			return stepList;
+		}
+		
+		public void setStepList(ArrayList<ArrayList<Integer>> stepList){
+			this.stepList = stepList;
+		}
+		
+		public ArrayList<Integer> getStep(){
+			return step;
+		}
+		
+		public void setStep(ArrayList<Integer> step){
+			this.step = step;
+		}
 	}
+	
 }

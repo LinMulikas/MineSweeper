@@ -4,7 +4,6 @@ import GameControl.Square;
 import MainGame.Game;
 import MainGame.gameStart;
 import Resource.Scheme.Scheme;
-import com.sun.org.apache.bcel.internal.generic.FLOAD;
 import javafx.geometry.Orientation;
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
@@ -188,19 +187,19 @@ public class myScenes{
 		RadioMenuItem itemA = new RadioMenuItem("Scheme A");
 		itemA.setOnAction(event -> {
 			if(itemA.isSelected()){
-				gameStart.thisGame.setScheme(Scheme.A);
+				gameStart.thisGame.setBlocksScheme(Scheme.A);
 			}
 		});
 		RadioMenuItem itemB = new RadioMenuItem("Scheme B");
 		itemB.setOnAction(event -> {
 			if(itemB.isSelected()){
-				gameStart.thisGame.setScheme(Scheme.B);
+				gameStart.thisGame.setBlocksScheme(Scheme.B);
 			}
 		});
 		RadioMenuItem itemC = new RadioMenuItem("Scheme C");
 		itemC.setOnAction(event -> {
 			if(itemC.isSelected()){
-				gameStart.thisGame.setScheme(Scheme.C);
+				gameStart.thisGame.setBlocksScheme(Scheme.C);
 			}
 		});
 		schemeChoose.getToggles().addAll(itemA, itemB, itemC);
@@ -300,12 +299,12 @@ public class myScenes{
 		Blocks = new Square[width*height];
 		for(int i = 0; i < width*height; i++){
 			Blocks[i] = new Square(i + 1);
-			Blocks[i].setView(gameStart.thisGame.getScheme());
 //			System.out.printf("以%s创建了block\n", gameStart.thisGame.getScheme().toString());
 			boomsPane.add(Blocks[i], (i)%width, (i)/width);
 		}
 		
 		gameStart.thisGame.setBlocks(Blocks);
+		gameStart.thisGame.setBlocksScheme(gameStart.thisGame.getScheme());
 //		gameStart.thisGame.setBlocks();
 		gameStart.thisGame.setBoomsNumber(10);
 		return boomsPane;
