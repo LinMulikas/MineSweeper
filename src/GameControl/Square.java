@@ -1,10 +1,7 @@
 package GameControl;
 
-import MainGame.MainGame;
-import Settings.SHAPE;
+import MainGame.gameStart;
 import javafx.event.EventHandler;
-import javafx.scene.image.Image;
-import javafx.scene.image.ImageView;
 import javafx.scene.input.MouseButton;
 import javafx.scene.input.MouseEvent;
 
@@ -23,14 +20,10 @@ public class Square extends Block{
 	
 	// 构造器
 	public Square(int id, int x, int y){
-		this.setBlockShape(SHAPE.SQUARE);
 		this.setWidth(40);
 		this.setHeight(40);
 	}
 	
-	public Square(int id, Position position){
-		this.setBlockShape(SHAPE.SQUARE);
-	}
 	
 	public Square(int id){
 		this();
@@ -45,7 +38,6 @@ public class Square extends Block{
 	// 基础的正方形，含所有鼠标注册事件
 	public Square(){
 		this.setPrefSize(40, 40);
-		this.setBlockShape(SHAPE.SQUARE);
 		this.setStatus(PreStatus.CLOSE);
 		
 		// 注册鼠标处理器
@@ -56,17 +48,17 @@ public class Square extends Block{
 		// 初始化数字ID
 		// 设置 初始 背景图片
 		this.setStyle(
-				"-fx-background-image: url(" + MainGame.thisGame.getSetting().getScheme().get("CLOSE") + ");"
+				"-fx-background-image: url(" + gameStart.thisGame.getScheme().pics.get("CLOSE") + ");"
 		);
 	}
 	
 	// 创建一个合理的内部雷区
 	
 	public static boolean createInner(int xExcept, int yExcept){
-		int x = MainGame.thisGame.getSetting().getAreaWidth();
-		int y = MainGame.thisGame.getSetting().getAreaHeight();
+		int x = gameStart.thisGame.getWidth();
+		int y = gameStart.thisGame.getHeight();
 		// 最大雷数
-		int boomsNumber = MainGame.thisGame.getBoomsNumber();
+		int boomsNumber = gameStart.thisGame.getBoomsNumber();
 		// 内部雷盘
 		int[][] inner = new int[x][y];
 		// 存雷id的列表
@@ -212,7 +204,7 @@ public class Square extends Block{
 //		}
 		
 		// 将生成的内部雷盘绑到当前游戏
-		MainGame.thisGame.setInnerArea(inner);
+		gameStart.thisGame.setInnerArea(inner);
 		return true;
 	}
 	
@@ -224,8 +216,8 @@ public class Square extends Block{
 	 * @return
 	 */
 	static boolean isOnArea(int x, int y){
-		if((x >= 1) && (x <= MainGame.thisGame.getSetting().getAreaWidth())){
-			if((y >= 1) && (y <= MainGame.thisGame.getSetting().getAreaHeight())){
+		if((x >= 1) && (x <= gameStart.thisGame.getWidth())){
+			if((y >= 1) && (y <= gameStart.thisGame.getHeight())){
 				return true;
 			}
 		}
@@ -347,11 +339,11 @@ public class Square extends Block{
 					System.out.printf("按钮%d被左键单击,位置(%d,%d)\n", iSquare.getNumIDId(), iSquare.position.getX(),
 							iSquare.position.getY());
 					// 记录点击次数
-					MainGame.thisGame.count();
+					gameStart.thisGame.count();
 					// 计数检验
-					System.out.printf("当前点击了%d次\n", MainGame.thisGame.getCount());
+					System.out.printf("当前点击了%d次\n", gameStart.thisGame.getCount());
 					// 首击生成棋盘
-					if(MainGame.thisGame.getCount() == 1){
+					if(gameStart.thisGame.getCount() == 1){
 						boolean judge = false;
 						while(!judge){
 							judge = Square.createInner(iSquare.getX(), iSquare.getY());
@@ -360,9 +352,9 @@ public class Square extends Block{
 					
 					// 临时视觉
 					// 临时视觉检验
-					for(int j = 0; j < MainGame.thisGame.getMaxHeight(); j++){
-						for(int i = 0; i < MainGame.thisGame.getMaxWidth(); i++){
-							System.out.printf("%d ", MainGame.thisGame.getInnerArea()[i][j]);
+					for(int j = 0; j < gameStart.thisGame.getHeight(); j++){
+						for(int i = 0; i < gameStart.thisGame.getWidth(); i++){
+							System.out.printf("%d ", gameStart.thisGame.getInnerArea()[i][j]);
 						}
 						System.out.println();
 					}
@@ -386,7 +378,7 @@ public class Square extends Block{
 			Square iSquare = (Square) event.getSource();
 			// 设置鼠标悬停图片
 			iSquare.setStyle(
-					"-fx-background-image: url(" + MainGame.thisGame.getSetting().getScheme().get("ENTER") + ");"
+					"-fx-background-image: url(" + gameStart.thisGame.getScheme().pics.get("ENTER") + ");"
 			);
 		}
 	}
@@ -398,7 +390,7 @@ public class Square extends Block{
 			// 得到事件源方块
 			Square iSquare = (Square) event.getSource();
 			iSquare.setStyle(
-					"-fx-background-image: url(" + MainGame.thisGame.getSetting().getScheme().get("CLOSE") + ");"
+					"-fx-background-image: url(" + gameStart.thisGame.getScheme().pics.get("CLOSE") + ");"
 			);
 		}
 	}

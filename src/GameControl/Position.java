@@ -1,6 +1,6 @@
 package GameControl;
 
-import MainGame.MainGame;
+import MainGame.gameStart;
 
 public class Position{
 	private int x, y;
@@ -36,11 +36,11 @@ public class Position{
 	// 必须已经知道最大宽度才能得到id --> x,y
 	public static int toX(int id){
 		int y = toY(id);
-		return (id - (MainGame.thisGame.getSetting().getAreaWidth())*(y - 1));
+		return (id - (gameStart.thisGame.getWidth())*(y - 1));
 	}
 	
 	public static int toY(int id){
-		return 1 + (id - 1)/(MainGame.thisGame.getSetting().getAreaWidth());
+		return 1 + (id - 1)/(gameStart.thisGame.getWidth());
 	}
 	
 }
