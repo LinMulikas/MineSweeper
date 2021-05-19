@@ -112,7 +112,7 @@ public class GameContainers{
 	}
 	
 	public int getMaxWidth(){
-		return MaxWidth;
+		return this.setting.getAreaWidth();
 	}
 	
 	public void setMaxWidth(int maxWidth){
@@ -120,7 +120,7 @@ public class GameContainers{
 	}
 	
 	public int getMaxHeight(){
-		return MaxHeight;
+		return this.setting.getAreaHeight();
 	}
 	
 	public void setMaxHeight(int maxHeight){

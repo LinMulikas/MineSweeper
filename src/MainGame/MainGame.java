@@ -24,6 +24,9 @@ public class MainGame extends Application{
 		GameContainers iGame = new GameContainers("newGame");
 		thisGame = iGame;
 		
+		// 设置方块主题
+		thisGame.getSetting().setScheme(3);
+		System.out.println(MainGame.thisGame.getSetting().getScheme().get("ENTER"));
 		// 把初始界面加入HashMap
 		iGame.mapStages.put("primaryStage", primaryStage);
 		

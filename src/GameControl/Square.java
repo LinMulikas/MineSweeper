@@ -12,22 +12,11 @@ import java.util.ArrayList;
 import java.util.Random;
 
 public class Square extends Block{
-	//	public static Map<String, ImageView> imageViewMap = new HashMap<String, ImageView>();
-	public static ImageView imageCLOSED = new ImageView(new Image("file:../src/Resource/Useful/CLOSED.png"));
 	// 创建基础的处理器
 	static MouseClicked mouseClicked = new MouseClicked();
 	static MouseEntered mouseEntered = new MouseEntered();
 	static MouseExited mouseExited = new MouseExited();
 	
-	// 尝试为按钮添加图片
-//	static{
-//		Image CLOSED = new Image("file:../src/Resource/Useful/CLOSED.png");
-//		System.out.println(CLOSED.getHeight());
-//		ImageView imageView = new ImageView(CLOSED);
-//		imageView.setFitHeight(40);
-//		imageView.setFitWidth(40);
-//		imageViewMap.put("CLOSED", new ImageView(CLOSED));
-//	}
 	private Position position = new Position();
 	private int PreNumber;
 	private int X, Y;
@@ -65,10 +54,9 @@ public class Square extends Block{
 		this.setOnMouseExited(mouseExited);
 		
 		// 初始化数字ID
-		this.setPreNumber(1);
-//		this.setGraphic(imageCLOSED);
+		// 设置 初始 背景图片
 		this.setStyle(
-				"-fx-background-image: url(" + "file:src/Resource/Image/Useful/CLOSED.png" + ");"
+				"-fx-background-image: url(" + MainGame.thisGame.getSetting().getScheme().get("CLOSE") + ");"
 		);
 	}
 	
@@ -339,6 +327,10 @@ public class Square extends Block{
 	/**
 	 * 鼠标处理器的静态类
 	 */
+	
+	/**
+	 * 扫雷核心算法
+	 */
 	static class MouseClicked implements EventHandler<MouseEvent>{
 		@Override
 		public void handle(MouseEvent event){
@@ -392,8 +384,9 @@ public class Square extends Block{
 		public void handle(MouseEvent event){
 			// 得到事件源方块
 			Square iSquare = (Square) event.getSource();
+			// 设置鼠标悬停图片
 			iSquare.setStyle(
-					"-fx-background-image: url(" + "file:src/Resource/Image/Useful/ENTER.png" + ");"
+					"-fx-background-image: url(" + MainGame.thisGame.getSetting().getScheme().get("ENTER") + ");"
 			);
 		}
 	}
@@ -405,7 +398,7 @@ public class Square extends Block{
 			// 得到事件源方块
 			Square iSquare = (Square) event.getSource();
 			iSquare.setStyle(
-					"-fx-background-image: url(" + "file:src/Resource/Image/Useful/CLOSED.png" + ");"
+					"-fx-background-image: url(" + MainGame.thisGame.getSetting().getScheme().get("CLOSE") + ");"
 			);
 		}
 	}
