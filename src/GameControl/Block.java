@@ -29,7 +29,7 @@ abstract class Block extends Button{
 		this.YIndex = YIndex;
 	}
 	
-	public int getNumIDId(){
+	public int getNumId(){
 		return numID;
 	}
 	
@@ -48,10 +48,19 @@ abstract class Block extends Button{
 	}
 	
 	enum PreStatus{
-		OPEN,
 		CLOSE,
 		FLAG,
-		BOOM;
+		BOOM,
+		SAFE,
+		NUM1,
+		NUM2,
+		NUM3,
+		NUM4,
+		NUM5,
+		NUM6,
+		NUM7,
+		NUM8,
+		NUM9;
 	}
 }
 

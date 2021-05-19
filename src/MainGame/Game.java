@@ -19,7 +19,7 @@ public class Game{
 	// Scene 容器
 	public Map<String, Scene> mapScenes = new HashMap<>();
 	// Scheme
-	private Scheme scheme = Scheme.B;
+	private Scheme scheme;
 	/**
 	 * 游戏核心属性
 	 */
@@ -58,8 +58,9 @@ public class Game{
 		this.setGameMode(GAMEMODE.PRIMARY);
 	}
 	
-	public Game(GAMEMODE gamemode){
+	public Game(GAMEMODE gamemode, Scheme iScheme){
 		this.setGameMode(gamemode);
+		this.scheme = iScheme;
 	}
 	
 	public String getName(){
@@ -110,12 +111,17 @@ public class Game{
 		BoomsNumber = boomsNumber;
 	}
 	
+	public void setBlocksView(){
+		for(Square item : this.Blocks){
+			item.setView(gameStart.thisGame.scheme);
+		}
+	}
+	
 	/**
 	 * 按照某个难度创建游戏
 	 *
 	 * @param gameMode
 	 */
-	
 	public void setGameMode(GAMEMODE gameMode){
 		switch(gameMode){
 			case PRIMARY:

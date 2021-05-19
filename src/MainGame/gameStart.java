@@ -1,6 +1,7 @@
 package MainGame;
 
 import Resource.Scene.myScenes;
+import Resource.Scheme.Scheme;
 import javafx.application.Application;
 import javafx.stage.Stage;
 
@@ -15,7 +16,7 @@ public class gameStart extends Application{
 	@Override
 	public void start(Stage primaryStage){
 		
-		thisGame = new Game(Game.GAMEMODE.HARD);
+		thisGame = new Game(Game.GAMEMODE.PRIMARY, Scheme.A);
 		thisGame.stage = primaryStage;
 		// 把初始界面加入Map
 		thisGame.mapStages.put("primaryStage", primaryStage);

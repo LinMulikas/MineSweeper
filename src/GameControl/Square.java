@@ -1,6 +1,7 @@
 package GameControl;
 
 import MainGame.gameStart;
+import Resource.Scheme.Scheme;
 import javafx.event.EventHandler;
 import javafx.scene.input.MouseButton;
 import javafx.scene.input.MouseEvent;
@@ -24,7 +25,6 @@ public class Square extends Block{
 		this.setHeight(40);
 	}
 	
-	
 	public Square(int id){
 		this();
 		this.position.setY(Position.toY(id));
@@ -39,17 +39,17 @@ public class Square extends Block{
 	public Square(){
 		this.setPrefSize(40, 40);
 		this.setStatus(PreStatus.CLOSE);
-		
+//		System.out.println(this.getStatus().toString());
 		// 注册鼠标处理器
 		this.setOnMouseClicked(mouseClicked);
 		this.setOnMouseEntered(mouseEntered);
 		this.setOnMouseExited(mouseExited);
 		
 		// 初始化数字ID
-		// 设置 初始 背景图片
-		this.setStyle(
-				"-fx-background-image: url(" + gameStart.thisGame.getScheme().pics.get("CLOSE") + ");"
-		);
+//		// 设置 初始 背景图片
+//		this.setStyle(
+//				"-fx-background-image: url(" + gameStart.thisGame.getScheme().pics.get("CLOSE") + ");"
+//		);
 	}
 	
 	// 创建一个合理的内部雷区
@@ -223,6 +223,12 @@ public class Square extends Block{
 		}
 		return false;
 	}
+
+//	public static void setBlockStyle(Square[] blocks){
+//		for(int i = 0; i < blocks.length; i++){
+//			blocks[i].setScheme();
+//		}
+//	}
 	
 	@Override
 	public int idToX(int id){
@@ -241,25 +247,44 @@ public class Square extends Block{
 	}
 	
 	/**
-	 * 视觉更新方法
+	 * 单个雷的视觉更新方法
 	 */
-	public boolean setView(){
+	public void setView(Scheme iScheme){
 		switch(this.getStatus()){
-			case OPEN:
-				
-				break;
 			case CLOSE:
+//				if(this.getNumId() == 1){
+//					System.out.println("设置为A");
+//				}
+				
+				this.setStyle(
+						"-fx-background-image: url(" + gameStart.thisGame.getScheme().pics.get("CLOSE") + ");"
+				);
 				break;
 			case FLAG:
 				break;
 			case BOOM:
 				break;
+			case SAFE:
+				break;
+			case NUM1:
+				break;
+			case NUM2:
+				break;
+			case NUM3:
+				break;
+			case NUM4:
+				break;
+			case NUM5:
+				break;
+			case NUM6:
+				break;
+			case NUM7:
+				break;
+			case NUM8:
+				break;
+			case NUM9:
+				break;
 		}
-		return true;
-	}
-	
-	public int getPreNumber(){
-		return PreNumber;
 	}
 
 //	boolean sweepHere(int x, int y){
@@ -291,6 +316,9 @@ public class Square extends Block{
 	 */
 	
 	// 鼠标处理器
+	public int getPreNumber(){
+		return PreNumber;
+	}
 	
 	/**
 	 * sweep群
@@ -312,13 +340,13 @@ public class Square extends Block{
 		return Y;
 	}
 	
-	public void setY(int y){
-		Y = y;
-	}
-	
 	/**
 	 * 鼠标处理器的静态类
 	 */
+	
+	public void setY(int y){
+		Y = y;
+	}
 	
 	/**
 	 * 扫雷核心算法
@@ -336,7 +364,7 @@ public class Square extends Block{
 			switch(event.getButton()){
 				case PRIMARY:
 					// 位置检验
-					System.out.printf("按钮%d被左键单击,位置(%d,%d)\n", iSquare.getNumIDId(), iSquare.position.getX(),
+					System.out.printf("按钮%d被左键单击,位置(%d,%d)\n", iSquare.getNumId(), iSquare.position.getX(),
 							iSquare.position.getY());
 					// 记录点击次数
 					gameStart.thisGame.count();
@@ -362,7 +390,7 @@ public class Square extends Block{
 					iSquare.sweep(iSquare.position.getX(), iSquare.position.getY());
 					break;
 				case SECONDARY:
-					System.out.printf("按钮%d被右键单击,位置(%d,%d)\n", iSquare.getNumIDId(), iSquare.position.getX(),
+					System.out.printf("按钮%d被右键单击,位置(%d,%d)\n", iSquare.getNumId(), iSquare.position.getX(),
 							iSquare.position.getY());
 					iSquare.sweep(iSquare.position.getX(), iSquare.position.getY());
 			}
@@ -394,5 +422,4 @@ public class Square extends Block{
 			);
 		}
 	}
-	
 }

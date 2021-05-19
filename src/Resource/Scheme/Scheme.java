@@ -15,12 +15,15 @@ public enum Scheme{
 			case 1:
 				this.pics.put("ENTER", "file:src/Resource/Image/Useful/ENTER_1.png");
 				this.pics.put("CLOSE", "file:src/Resource/Image/Useful/CLOSE_1.png");
+				break;
 			case 2:
 				this.pics.put("ENTER", "file:src/Resource/Image/Useful/ENTER_2.png");
 				this.pics.put("CLOSE", "file:src/Resource/Image/Useful/CLOSE_2.png");
+				break;
 			case 3:
 				this.pics.put("ENTER", "file:src/Resource/Image/Useful/ENTER_3.png");
 				this.pics.put("CLOSE", "file:src/Resource/Image/Useful/CLOSE_3.png");
+				break;
 		}
 	}
 	
