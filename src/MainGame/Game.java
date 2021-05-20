@@ -19,7 +19,7 @@ public class Game{
 	public Stage stage = new Stage();
 	// Scene 容器
 	public Map<String, Scene> mapScenes = new HashMap<>();
-	private Square.sweepType sweepType;
+	private Square.sweepType sweepType = Square.sweepType.CONTINOUS;
 	// Scheme
 	private Scheme scheme;
 	/**

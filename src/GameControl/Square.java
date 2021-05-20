@@ -8,6 +8,7 @@ import javafx.scene.input.MouseEvent;
 
 import java.util.ArrayList;
 import java.util.Random;
+import java.util.concurrent.TimeUnit;
 
 public class Square extends Block{
 	// 创建基础的处理器
@@ -68,7 +69,7 @@ public class Square extends Block{
 		ArrayList<Integer> boomsID = new ArrayList<>();
 		
 		// 随机初始化指定数量的雷
-		for(int cnt = 0; cnt < boomsNumber; cnt++){
+		for(int cnt = 0; cnt <= boomsNumber; cnt++){
 			Random ran = new Random();
 			// 生成雷的id
 			int theID = 1 + ran.nextInt(width*height);
@@ -246,7 +247,6 @@ public class Square extends Block{
 	 * </pre>
 	 */
 	public void openHere(){
-		
 		int clickID = this.getNumId();
 //		System.out.println(gameStart.thisGame.getCount());
 		//
@@ -285,39 +285,169 @@ public class Square extends Block{
 				this.setStatus(PreStatus.NUM8);
 				break;
 		}
+		
 		// 改变视觉效果
 		this.setView(gameStart.thisGame.getScheme());
 		// 记录操作(open是强制点击)
 		gameStart.thisGame.getRecorder().getStep().add(clickID);
+		
+		if(gameStart.thisGame.getSweepType().equals(sweepType.CONTINOUS)){
+			if(this.getStatus().equals(PreStatus.SAFE)){
+				this.sweep();
+			}
+		}
 	}
 	
 	// 级联扫雷
-	// 当前方块已经被点击，向周围扩散
-	public void sweep(int x, int y){
-		// 储存要打开的id
-		// 如果是安全区域就打开
-		
-		// 向左
+	// 当前方块已经被揭开,并且是空白,向周围扩散
+	public void sweep(){
+		int x = this.getX();
+		int y = this.getY();
+		// 如果是安全区域就打开周围
 		if(isOnArea(x - 1, y)){
-			if(gameStart.thisGame.getInnerArea()[x - 1][y] == 0){
+			// 检查是否已经开采
+			if(gameStart.thisGame.getABlock(x - 1, y).getStatus().equals(PreStatus.CLOSE)){
+				// 只能自动开采关闭的方块
+				// 动画效果等待0.001秒
+				try{
+					Thread.sleep(1);
+				}
+				catch(InterruptedException e1){
+					//捕获异常
+					e1.printStackTrace();
+				}
 				gameStart.thisGame.getABlock(x - 1, y).openHere();
+				// 顺便如果是SAFE，进行sweep级联
+				if(gameStart.thisGame.getABlock(x - 1, y).getStatus().equals(PreStatus.SAFE)){
+					gameStart.thisGame.getABlock(x - 1, y).sweep();
+				}
 			}
 		}
-		/**
-		 * 递归出口
-		 */
-		
-		/**
-		 * 递归入口
-		 */
-		// 左侧
-		if(isOnArea(x - 1, y)){
-			// 未被扫再继续递归
-			if(!gameStart.thisGame.getRecorder().getStep().contains(Position.positionToId(x - 1, y))){
-				sweep(x - 1, y);
+		if(isOnArea(x + 1, y)){
+			// 检查是否已经开采
+			if(gameStart.thisGame.getABlock(x + 1, y).getStatus().equals(PreStatus.CLOSE)){
+				// 只能自动开采关闭的方块
+				// 动画效果等待0.001秒
+				try{
+					Thread.sleep(1);
+				}
+				catch(InterruptedException e1){
+					//捕获异常
+					e1.printStackTrace();
+				}
+				gameStart.thisGame.getABlock(x + 1, y).openHere();
+				// 顺便如果是SAFE，进行sweep级联
+				if(gameStart.thisGame.getABlock(x + 1, y).getStatus().equals(PreStatus.SAFE)){
+					gameStart.thisGame.getABlock(x + 1, y).sweep();
+				}
 			}
 		}
-		
+		if(isOnArea(x, y - 1)){
+			// 检查是否已经开采
+			if(gameStart.thisGame.getABlock(x, y - 1).getStatus().equals(PreStatus.CLOSE)){
+				// 只能自动开采关闭的方块
+				// 动画效果等待0.001秒
+				try{
+					Thread.sleep(1);
+				}
+				catch(InterruptedException e1){
+					//捕获异常
+					e1.printStackTrace();
+				}
+				gameStart.thisGame.getABlock(x, y - 1).openHere();
+				// 顺便如果是SAFE，进行sweep级联
+				if(gameStart.thisGame.getABlock(x, y - 1).getStatus().equals(PreStatus.SAFE)){
+					gameStart.thisGame.getABlock(x, y - 1).sweep();
+				}
+			}
+		}
+		if(isOnArea(x, y + 1)){
+			// 检查是否已经开采
+			if(gameStart.thisGame.getABlock(x, y + 1).getStatus().equals(PreStatus.CLOSE)){
+				// 只能自动开采关闭的方块
+				gameStart.thisGame.getABlock(x, y + 1).openHere();
+				// 顺便如果是SAFE，进行sweep级联
+				if(gameStart.thisGame.getABlock(x, y + 1).getStatus().equals(PreStatus.SAFE)){
+					gameStart.thisGame.getABlock(x, y + 1).sweep();
+				}
+			}
+		}
+		if(isOnArea(x - 1, y - 1)){
+			// 检查是否已经开采
+			if(gameStart.thisGame.getABlock(x - 1, y - 1).getStatus().equals(PreStatus.CLOSE)){
+				// 只能自动开采关闭的方块
+				// 动画效果等待0.001秒
+				try{
+					Thread.sleep(1);
+				}
+				catch(InterruptedException e1){
+					//捕获异常
+					e1.printStackTrace();
+				}
+				gameStart.thisGame.getABlock(x - 1, y - 1).openHere();
+				// 顺便如果是SAFE，进行sweep级联
+				if(gameStart.thisGame.getABlock(x - 1, y - 1).getStatus().equals(PreStatus.SAFE)){
+					gameStart.thisGame.getABlock(x - 1, y - 1).sweep();
+				}
+			}
+		}
+		if(isOnArea(x - 1, y + 1)){
+			// 检查是否已经开采
+			if(gameStart.thisGame.getABlock(x - 1, y + 1).getStatus().equals(PreStatus.CLOSE)){
+				// 只能自动开采关闭的方块
+				// 动画效果等待0.001秒
+				try{
+					Thread.sleep(1);
+				}
+				catch(InterruptedException e1){
+					//捕获异常
+					e1.printStackTrace();
+				}
+				gameStart.thisGame.getABlock(x - 1, y + 1).openHere();
+				// 顺便如果是SAFE，进行sweep级联
+				if(gameStart.thisGame.getABlock(x - 1, y + 1).getStatus().equals(PreStatus.SAFE)){
+					gameStart.thisGame.getABlock(x - 1, y + 1).sweep();
+				}
+			}
+		}
+		if(isOnArea(x + 1, y - 1)){
+			// 检查是否已经开采
+			if(gameStart.thisGame.getABlock(x + 1, y - 1).getStatus().equals(PreStatus.CLOSE)){
+				// 只能自动开采关闭的方块
+				// 动画效果等待0.001秒
+				try{
+					Thread.sleep(1);
+				}
+				catch(InterruptedException e1){
+					//捕获异常
+					e1.printStackTrace();
+				}
+				gameStart.thisGame.getABlock(x + 1, y - 1).openHere();
+				// 顺便如果是SAFE，进行sweep级联
+				if(gameStart.thisGame.getABlock(x + 1, y - 1).getStatus().equals(PreStatus.SAFE)){
+					gameStart.thisGame.getABlock(x + 1, y - 1).sweep();
+				}
+			}
+		}
+		if(isOnArea(x + 1, y + 1)){
+			// 检查是否已经开采
+			if(gameStart.thisGame.getABlock(x + 1, y + 1).getStatus().equals(PreStatus.CLOSE)){
+				// 只能自动开采关闭的方块
+				// 动画效果等待0.001秒
+				try{
+					Thread.sleep(1);
+				}
+				catch(InterruptedException e1){
+					//捕获异常
+					e1.printStackTrace();
+				}
+				gameStart.thisGame.getABlock(x + 1, y + 1).openHere();
+				// 顺便如果是SAFE，进行sweep级联
+				if(gameStart.thisGame.getABlock(x + 1, y + 1).getStatus().equals(PreStatus.SAFE)){
+					gameStart.thisGame.getABlock(x + 1, y + 1).sweep();
+				}
+			}
+		}
 	}
 	
 	/**

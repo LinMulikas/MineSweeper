@@ -16,7 +16,7 @@ public class gameStart extends Application{
 	@Override
 	public void start(Stage primaryStage){
 		
-		thisGame = new Game(Game.GAMEMODE.MIDDLE, Scheme.B);
+		thisGame = new Game(Game.GAMEMODE.HARD, Scheme.B);
 		thisGame.stage = primaryStage;
 		// 把初始界面加入Map
 		thisGame.mapStages.put("primaryStage", primaryStage);

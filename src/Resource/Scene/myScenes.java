@@ -157,7 +157,7 @@ public class myScenes{
 	 */
 	
 	// 游戏界面构造方法
-	// 构建游戏场景
+	// 构建总体游戏场景
 	public static Scene createGameScene(){
 		int width = gameStart.thisGame.getWidth();
 		int height = gameStart.thisGame.getHeight();
@@ -223,8 +223,7 @@ public class myScenes{
 		 */
 		
 		// 游戏区域
-		FlowPane playArea = new FlowPane();
-		playArea.setOrientation(Orientation.HORIZONTAL);
+		VBox vbInfoAndBooms = new VBox(10);
 		
 		// 游戏区域 - 信息面板
 		FlowPane infoArea = new FlowPane();
@@ -232,21 +231,30 @@ public class myScenes{
 		
 		// 游戏区域 - 信息面板
 		// 临时用文本代替
-		TextArea GameInfo = new TextArea();
-		GameInfo.setPrefSize(40*gameStart.thisGame.getWidth(), 200);
-		GameInfo.setText("未来的信息面板");
-		infoArea.getChildren().add(GameInfo);
+		TextArea txtAreaInfo = new TextArea();
+		txtAreaInfo.setPrefSize(40*gameStart.thisGame.getWidth(), 200);
+		txtAreaInfo.setText("未来的信息面板");
+		
+		infoArea.getChildren().add(txtAreaInfo);
 		
 		// 游戏区域 - 雷区面板
 		GridPane BoomsPane = myScenes.createBoomsPane(width, height);
+		// 雷区视觉调控
 		
 		// 游戏区域 - 闲话面板
 		Pane mulikas = new Pane();
 		mulikas.setPrefSize(40*gameStart.thisGame.getWidth(), 100);
-		mulikas.getChildren().add(new Label("Mulikas:感谢游玩"));
+		Label labMulikas = new Label("Mulikas:感谢游玩");
+		labMulikas.setStyle("-fx-border-style:solid;"
+		);
+		labMulikas.setPrefSize(40*gameStart.thisGame.getWidth(), 50);
+		labMulikas.setAlignment(Pos.CENTER);
+		
+		mulikas.getChildren().add(labMulikas);
 		
 		// 加入信息面板、雷区面板
-		playArea.getChildren().addAll(infoArea, BoomsPane, mulikas);
+		vbInfoAndBooms.setAlignment(Pos.CENTER);
+		vbInfoAndBooms.getChildren().addAll(infoArea, BoomsPane, mulikas);
 		// 游戏区域 - END
 		
 		// 控制区域
@@ -261,7 +269,7 @@ public class myScenes{
 		
 		FlowPane flowGamePane = new FlowPane();
 		flowGamePane.setOrientation(Orientation.VERTICAL);
-		flowGamePane.getChildren().addAll(playArea, controlArea);
+		flowGamePane.getChildren().addAll(vbInfoAndBooms, controlArea);
 		
 		// 设置游戏场景
 		
@@ -283,17 +291,6 @@ public class myScenes{
 	public static GridPane createBoomsPane(int width, int height){
 		GridPane boomsPane = new GridPane();
 		
-		// 主题间距微调
-		if(gameStart.thisGame.getScheme().equals(Scheme.A)){
-			boomsPane.setVgap(1);
-			boomsPane.setHgap(1);
-		}
-		
-		// 雷区主题修正
-		if(gameStart.thisGame.getScheme().equals(Scheme.C)){
-			boomsPane.setVgap(1);
-			boomsPane.setHgap(1);
-		}
 		
 		Square[] Blocks = null;
 		Blocks = new Square[width*height];
@@ -306,7 +303,7 @@ public class myScenes{
 		gameStart.thisGame.setBlocks(Blocks);
 		gameStart.thisGame.setBlocksScheme(gameStart.thisGame.getScheme());
 //		gameStart.thisGame.setBlocks();
-		gameStart.thisGame.setBoomsNumber(10);
+//		gameStart.thisGame.setBoomsNumber(10);
 		return boomsPane;
 	}
 }
