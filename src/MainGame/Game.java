@@ -6,6 +6,7 @@ import Resource.Scheme.Scheme;
 import javafx.scene.Scene;
 import javafx.stage.Stage;
 
+import java.io.*;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
@@ -20,11 +21,13 @@ public class Game{
 	// Scene 容器
 	public Map<String, Scene> mapScenes = new HashMap<>();
 	private Square.sweepType sweepType = Square.sweepType.CONTINOUS;
+	
 	// Scheme
 	private Scheme scheme;
 	/**
 	 * 游戏核心属性
 	 */
+	private Player[] players = null;
 	private String GameName;
 	private int BoomsNumber;
 	private int MaxBoomsNumber;
@@ -39,6 +42,7 @@ public class Game{
 	private GAMEMODE GameMode;
 	private Recorder recorder = new Recorder();
 	private int stepCount = 0;
+	private int playerSteps;
 	
 	// Inner群
 	
@@ -57,13 +61,52 @@ public class Game{
 	 * </pre>
 	 */
 	public Game(){
-		this.setGameMode(GAMEMODE.PRIMARY);
+		this.setGameMode(GAMEMODE.MIDDLE);
 		this.sweepType = Square.sweepType.SINGLE;
+		this.scheme = Scheme.B;
 	}
 	
 	public Game(GAMEMODE gamemode, Scheme iScheme){
 		this.setGameMode(gamemode);
+		this.sweepType = Square.sweepType.SINGLE;
 		this.scheme = iScheme;
+	}
+	
+	public void loadGame(){
+	
+	}
+	
+	public void saveGame(String saveName){
+		ObjectOutputStream oos = null;
+		File file = new File("L:\\SUSTC\\Saves", saveName + ".txt");
+		
+		try{
+			file.createNewFile();// 创建文件
+		}
+		catch(IOException e1){
+		}
+		
+		try{
+			oos = new ObjectOutputStream(
+					new FileOutputStream(file));
+			oos.writeObject(gameStart.thisGame.getRecorder().getStepList());
+			for(ArrayList<Integer> list : gameStart.thisGame.getRecorder().getStepList()){
+
+//				System.out.println((gameStart.thisGame.getRecorder().getStepList().indexOf(list) + 1) + ":" + list
+//				.toString());
+			}
+		}
+		catch(IOException e){
+			e.printStackTrace();
+		}
+		finally{
+			try{
+				oos.close();
+			}
+			catch(IOException e){
+				e.printStackTrace();
+			}
+		}
 	}
 	
 	public String getName(){
@@ -175,20 +218,25 @@ public class Game{
 	public void setGameMode(GAMEMODE gameMode){
 		switch(gameMode){
 			case PRIMARY:
+				this.GameMode = GAMEMODE.PRIMARY;
 				this.Width = 9;
 				this.Height = 9;
 				this.BoomsNumber = 10;
 				break;
 			case MIDDLE:
+				this.GameMode = GAMEMODE.MIDDLE;
 				this.Width = 16;
 				this.Height = 16;
 				this.BoomsNumber = 40;
 				break;
 			case HARD:
+				this.GameMode = GAMEMODE.HARD;
 				this.Width = 30;
 				this.Height = 16;
 				this.BoomsNumber = 99;
 				break;
+			case SELF:
+				this.GameMode = GAMEMODE.SELF;
 		}
 	}
 	
@@ -208,6 +256,18 @@ public class Game{
 		this.sweepType = sweepType;
 	}
 	
+	public Player[] getPlayers(){
+		return players;
+	}
+	
+	public void setPlayers(Player[] players){
+		this.players = players;
+	}
+	
+	public void setPlayersNumber(int number){
+		this.players = new Player[number];
+	}
+	
 	public enum GAMEMODE{
 		PRIMARY,
 		MIDDLE,
@@ -215,13 +275,26 @@ public class Game{
 		SELF;
 	}
 	
-	public static class Recorder{
+	public static class Recorder implements Serializable{
 		private ArrayList<ArrayList<Integer>> stepList = new ArrayList<>();
 		private ArrayList<Integer> step = new ArrayList<>();
 		
 		// 记录每一步
 		public void update(){
-			this.stepList.add(this.step);
+			this.stepList.add((ArrayList<Integer>) this.step.clone());
+//			System.out.println(stepList.get(gameStart.thisGame.getStepCount()-1).toString());
+			this.step.clear();
+		}
+		
+		@Override
+		public String toString(){
+			StringBuilder sb = new StringBuilder();
+			for(ArrayList<Integer> list : stepList){
+//				System.out.println(list.toString());
+				sb.append(list.toString());
+//				System.out.println(list.toString());
+			}
+			return sb.toString();
 		}
 		
 		public ArrayList<ArrayList<Integer>> getStepList(){

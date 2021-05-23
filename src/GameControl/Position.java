@@ -2,6 +2,8 @@ package GameControl;
 
 import MainGame.gameStart;
 
+import java.io.Serializable;
+
 public class Position{
 	private int x, y;
 	
@@ -43,6 +45,5 @@ public class Position{
 	public void setY(int y){
 		this.y = y;
 	}
-	
 	
 }

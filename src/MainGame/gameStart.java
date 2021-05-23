@@ -2,21 +2,32 @@ package MainGame;
 
 import Resource.Scene.myScenes;
 import Resource.Scheme.Scheme;
+import com.sun.java.swing.plaf.windows.WindowsClassicLookAndFeel;
 import javafx.application.Application;
 import javafx.stage.Stage;
+
+import javax.swing.*;
+import javax.swing.plaf.nimbus.NimbusLookAndFeel;
 
 public class gameStart extends Application{
 	// 初始化一个默认设置的游戏
 	public static Game thisGame;
 	
 	public static void main(String[] args){
+		try{
+			UIManager.setLookAndFeel(new WindowsClassicLookAndFeel());
+		}
+		catch(UnsupportedLookAndFeelException e){
+			e.printStackTrace();
+		}
 		launch(args);
 	}
 	
 	@Override
 	public void start(Stage primaryStage){
 		
-		thisGame = new Game(Game.GAMEMODE.HARD, Scheme.B);
+		thisGame = new Game(Game.GAMEMODE.PRIMARY, Scheme.B);
+		
 		thisGame.stage = primaryStage;
 		// 把初始界面加入Map
 		thisGame.mapStages.put("primaryStage", primaryStage);

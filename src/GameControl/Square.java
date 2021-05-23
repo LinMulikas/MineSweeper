@@ -6,6 +6,7 @@ import javafx.event.EventHandler;
 import javafx.scene.input.MouseButton;
 import javafx.scene.input.MouseEvent;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Random;
 import java.util.concurrent.TimeUnit;
@@ -69,7 +70,7 @@ public class Square extends Block{
 		ArrayList<Integer> boomsID = new ArrayList<>();
 		
 		// 随机初始化指定数量的雷
-		for(int cnt = 0; cnt <= boomsNumber; cnt++){
+		for(int cnt = 0; cnt < boomsNumber; cnt++){
 			Random ran = new Random();
 			// 生成雷的id
 			int theID = 1 + ran.nextInt(width*height);
@@ -202,7 +203,7 @@ public class Square extends Block{
 		
 		// 首发必须为空
 		if(inner[xExcept - 1][yExcept - 1] != 0){
-			System.out.println("到了");
+//			System.out.println("到了");
 			return false;
 		}
 		
@@ -290,7 +291,8 @@ public class Square extends Block{
 		this.setView(gameStart.thisGame.getScheme());
 		// 记录操作(open是强制点击)
 		gameStart.thisGame.getRecorder().getStep().add(clickID);
-		
+		System.out.printf("id:%d 被打开\n", clickID);
+		// 级联扫雷
 		if(gameStart.thisGame.getSweepType().equals(sweepType.CONTINOUS)){
 			if(this.getStatus().equals(PreStatus.SAFE)){
 				this.sweep();
@@ -316,6 +318,7 @@ public class Square extends Block{
 					//捕获异常
 					e1.printStackTrace();
 				}
+				
 				gameStart.thisGame.getABlock(x - 1, y).openHere();
 				// 顺便如果是SAFE，进行sweep级联
 				if(gameStart.thisGame.getABlock(x - 1, y).getStatus().equals(PreStatus.SAFE)){
@@ -601,7 +604,14 @@ public class Square extends Block{
 							}
 							System.out.println();
 						}
+						
 						iSquare.openHere();
+						for(int i : gameStart.thisGame.getRecorder().getStep()){
+							System.out.printf("%d ", i);
+						}
+//						System.out.println("一击打开了："+gameStart.thisGame.getRecorder().getStep().size());
+//						System.out.println();
+						gameStart.thisGame.getRecorder().update();
 					}
 					break;
 				case SECONDARY:
@@ -612,7 +622,11 @@ public class Square extends Block{
 						gameStart.thisGame.count();
 						System.out.printf("按钮%d被右键单击,位置(%d,%d)\n", iSquare.getNumId(), iSquare.position.getX(),
 								iSquare.position.getY());
-						iSquare.setStatus(PreStatus.FLAG);
+						if(iSquare.getStatus().equals(PreStatus.BOOM)){
+							iSquare.setStatus(PreStatus.FLAG);
+						} else{
+							iSquare.openHere();
+						}
 						break;
 					}
 					

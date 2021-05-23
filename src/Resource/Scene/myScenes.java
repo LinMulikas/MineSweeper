@@ -9,7 +9,10 @@ import javafx.geometry.Pos;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.layout.*;
+import javafx.scene.text.Text;
 import javafx.stage.Stage;
+
+import java.util.function.UnaryOperator;
 
 public class myScenes{
 	// 静态成员
@@ -26,89 +29,372 @@ public class myScenes{
 	 * SettingScene 细节
 	 */
 	static{
-		VBox vBoxSetting = new VBox();
+		/**
+		 * 游戏名称
+		 */
+		Label labGameName = new Label("请输入游戏名称：");
+		TextField txtGameName = new TextField();
+		HBox hboxGameName = new HBox();
+		txtGameName.setMaxWidth(200);
+		Button btnSetName = new Button("确定");
+		btnSetName.setOnAction(event -> {
+			if(txtGameName.getText().equals("")){
+				Stage gameNameWarning = new Stage();
+				gameNameWarning.setTitle("警告");
+				FlowPane flWarning = new FlowPane();
+				flWarning.setPrefSize(300, 200);
+				flWarning.setAlignment(Pos.CENTER);
+				Text txtWarning = new Text("游戏名称为空，不合法!");
+				flWarning.getChildren().addAll(txtWarning);
+				gameNameWarning.setScene(new Scene(flWarning));
+				gameNameWarning.setResizable(false);
+				gameNameWarning.show();
+			} else{
+				gameStart.thisGame.setName(txtGameName.getText());
+			}
+		});
+		
+		hboxGameName.getChildren().addAll(txtGameName, btnSetName);
+		VBox vboxGameName = new VBox();
+		
+		vboxGameName.getChildren().addAll(labGameName, hboxGameName);
+		
 		/**
 		 * 难度选择面板
 		 */
 		// 创建一组单选框
 		Label labelGameMode = new Label("请选择游戏难度：");
 		// 创建对应游戏标签的容器
-		HBox hBoxGameMode = new HBox();
+		HBox hboxGameMode = new HBox();
+		hboxGameMode.setSpacing(60);
+
+//		hBoxGameMode.setAlignment(Pos.TOP_CENTER);
+		GridPane gridSelf = new GridPane();
+		Label labelWidth = new Label("Width:");
+		Label labelHeight = new Label("Height:");
+		Label labelBooms = new Label("BoomsNumber:");
+		
+		TextField txtWidth = new TextField();
+		TextField txtHeight = new TextField();
+		TextField txtBooms = new TextField();
+		
+		txtWidth.setTextFormatter(new TextFormatter<String>(new UnaryOperator<TextFormatter.Change>(){
+			@Override
+			public TextFormatter.Change apply(TextFormatter.Change change){
+				String value = change.getText();
+				if(value.matches("[0-9]*")){
+					return change;
+				}
+				return null;
+			}
+		}));
+		
+		txtHeight.setTextFormatter(new TextFormatter<String>(new UnaryOperator<TextFormatter.Change>(){
+			@Override
+			public TextFormatter.Change apply(TextFormatter.Change change){
+				String value = change.getText();
+				if(value.matches("[0-9]*")){
+					return change;
+				}
+				return null;
+			}
+		}));
+		
+		txtBooms.setTextFormatter(new TextFormatter<String>(new UnaryOperator<TextFormatter.Change>(){
+			@Override
+			public TextFormatter.Change apply(TextFormatter.Change change){
+				String value = change.getText();
+				if(value.matches("[0-9]*")){
+					return change;
+				}
+				return null;
+			}
+		}));
+		
+		Button checkSelf = new Button("采用设置");
+		checkSelf.setOnAction(event -> {
+			gameStart.thisGame.setGameMode(Game.GAMEMODE.SELF);
+			int width = 0, height = 0, booms = 0;
+			try{
+				width = Integer.parseInt(txtWidth.getText());
+				height = Integer.parseInt(txtHeight.getText());
+				booms = Integer.parseInt(txtBooms.getText());
+				if((width >= 1) && (width <= 30)){
+					if((height >= 1) && (height <= 24)){
+						if((booms >= 1) && (booms <= (int) (width*height*0.5))){
+							gameStart.thisGame.setWidth(width);
+							gameStart.thisGame.setHeight(height);
+							gameStart.thisGame.setBoomsNumber(booms);
+							gameStart.thisGame.setGameMode(Game.GAMEMODE.SELF);
+//							System.out.println(width);
+//							System.out.println(height);
+//							System.out.println(booms);
+						} else{
+							Stage gameSelfWarning = new Stage();
+							gameSelfWarning.setTitle("警告");
+							FlowPane flWarning = new FlowPane();
+							flWarning.setPrefSize(300, 200);
+							flWarning.setAlignment(Pos.CENTER);
+							Text txtWarning = new Text("游戏设置不合法：\n" +
+									"请输入整数高度介于1~24之间.\n" +
+									"请输入整数宽度介于1~30之间.\n" +
+									"输入的雷数介于1~高度×宽度×0.5之间!\n");
+							flWarning.getChildren().addAll(txtWarning);
+							gameSelfWarning.setScene(new Scene(flWarning));
+							gameSelfWarning.setResizable(false);
+							gameSelfWarning.show();
+						}
+					} else{
+						Stage gameSelfWarning = new Stage();
+						gameSelfWarning.setTitle("警告");
+						FlowPane flWarning = new FlowPane();
+						flWarning.setPrefSize(300, 200);
+						flWarning.setAlignment(Pos.CENTER);
+						Text txtWarning = new Text("游戏设置不合法：\n" +
+								"请输入整数高度介于1~24之间.\n" +
+								"请输入整数宽度介于1~30之间.\n" +
+								"输入的雷数介于1~高度×宽度×0.5之间!\n");
+						flWarning.getChildren().addAll(txtWarning);
+						gameSelfWarning.setScene(new Scene(flWarning));
+						gameSelfWarning.setResizable(false);
+						gameSelfWarning.show();
+					}
+				} else{
+					Stage gameSelfWarning = new Stage();
+					gameSelfWarning.setTitle("警告");
+					FlowPane flWarning = new FlowPane();
+					flWarning.setPrefSize(300, 200);
+					flWarning.setAlignment(Pos.CENTER);
+					Text txtWarning = new Text("游戏设置不合法：\n" +
+							"请输入整数高度介于1~24之间.\n" +
+							"请输入整数宽度介于1~30之间.\n" +
+							"输入的雷数介于1~高度×宽度×0.5之间!\n");
+					flWarning.getChildren().addAll(txtWarning);
+					gameSelfWarning.setScene(new Scene(flWarning));
+					gameSelfWarning.setResizable(false);
+					gameSelfWarning.show();
+				}
+				
+			}
+			catch(Exception e){
+				Stage gameNameWarning = new Stage();
+				gameNameWarning.setTitle("警告");
+				FlowPane flWarning = new FlowPane();
+				flWarning.setPrefSize(300, 200);
+				flWarning.setAlignment(Pos.CENTER);
+				Text txtWarning = new Text("当前设置为空！");
+				flWarning.getChildren().addAll(txtWarning);
+				gameNameWarning.setScene(new Scene(flWarning));
+				gameNameWarning.setResizable(false);
+				gameNameWarning.show();
+			}
+			
+		});
+		gridSelf.setVgap(10);
+		gridSelf.setHgap(10);
+		
+		gridSelf.add(labelWidth, 1, 1);
+		gridSelf.add(txtWidth, 2, 1);
+		
+		gridSelf.add(labelHeight, 1, 2);
+		gridSelf.add(txtHeight, 2, 2);
+		
+		gridSelf.add(labelBooms, 1, 3);
+		gridSelf.add(txtBooms, 2, 3);
+		gridSelf.add(checkSelf, 1, 4);
+		
+		gridSelf.setVisible(false);
+		
 		// 创建一个组容纳游戏难度调整的按钮
 		ToggleGroup groupGameMode = new ToggleGroup();
 		// 初级按钮的功能
-		RadioButton btnPrimary = new RadioButton("Primary");
-		btnPrimary.setOnAction(event -> {
-			if(btnPrimary.isSelected()){
-				gameStart.thisGame.setGameMode(Game.GAMEMODE.PRIMARY);
-			}
-		});
 		
+		RadioButton btnPrimary = new RadioButton("Primary");
+		btnPrimary.setSelected(true);
+		btnPrimary.setPrefWidth(160);
+		btnPrimary.setOnAction(event -> {
+			gridSelf.setVisible(false);
+			gameStart.thisGame.setGameMode(Game.GAMEMODE.PRIMARY);
+		});
 		btnPrimary.setToggleGroup(groupGameMode);
+		
 		RadioButton btnMiddle = new RadioButton("Middle");
 		btnMiddle.setOnAction(event -> {
-			if(btnPrimary.isSelected()){
-				gameStart.thisGame.setGameMode(Game.GAMEMODE.PRIMARY);
-			}
+			gridSelf.setVisible(false);
+			gameStart.thisGame.setGameMode(Game.GAMEMODE.MIDDLE);
 		});
-		
 		btnMiddle.setToggleGroup(groupGameMode);
+		btnMiddle.setPrefWidth(160);
+		
 		RadioButton btnHard = new RadioButton("Hard");
+		btnHard.setPrefWidth(160);
 		btnHard.setOnAction(event -> {
-			if(btnPrimary.isSelected()){
-				gameStart.thisGame.setGameMode(Game.GAMEMODE.PRIMARY);
-			}
+			gridSelf.setVisible(false);
+			gameStart.thisGame.setGameMode(Game.GAMEMODE.HARD);
 		});
 		
 		btnHard.setToggleGroup(groupGameMode);
 		
 		RadioButton btnSelf = new RadioButton("Self-Design");
+		btnSelf.setPrefWidth(160);
 		btnSelf.setOnAction(event -> {
 			if(btnSelf.isSelected()){
-				System.out.println("显示定制模式");
+				gridSelf.setVisible(true);
+				gridSelf.setManaged(true);
 			}
+//			System.out.println("tt");
 		});
 		btnSelf.setToggleGroup(groupGameMode);
-		hBoxGameMode.getChildren().addAll(btnPrimary, btnMiddle, btnHard, btnSelf);
+		hboxGameMode.getChildren().addAll(btnPrimary, btnMiddle, btnHard, btnSelf);
+		
 		// 组合成游戏选择面板
-		FlowPane gameModePane = new FlowPane();
-		gameModePane.getChildren().addAll(labelGameMode, hBoxGameMode);
+		FlowPane FLGameMode = new FlowPane();
+		FLGameMode.setVgap(20);
+		FLGameMode.getChildren().addAll(labelGameMode, hboxGameMode, gridSelf);
 		
 		/**
 		 * Scheme 选择面板
 		 */
-		Label schemeChoose = new Label("Choose your scheme");
+		Label labelScheme = new Label("请选择游戏主题：");
+		HBox hboxSchemeChoose = new HBox();
+		
 		ToggleGroup groupSchemeChoose = new ToggleGroup();
 		RadioButton btnSchemeA = new RadioButton("Scheme A");
+		btnSchemeA.setPrefWidth(160);
 		btnSchemeA.setOnAction(event -> {
-			if(btnSchemeA.isSelected()){
-				Square[] blocks = gameStart.thisGame.getBlocks();
-				for(int i = 0; i < blocks.length; i++){
-					blocks[i].setView(Scheme.A);
-				}
-			}
+			gameStart.thisGame.setScheme(Scheme.A);
 		});
 		RadioButton btnSchemeB = new RadioButton("Scheme B");
+		
+		btnSchemeB.setSelected(true);
+		btnSchemeB.setPrefWidth(160);
 		btnSchemeB.setOnAction(event -> {
-			if(btnSchemeB.isSelected()){
-				Square[] blocks = gameStart.thisGame.getBlocks();
-				for(int i = 0; i < blocks.length; i++){
-					blocks[i].setView(Scheme.B);
-				}
-			}
+			gameStart.thisGame.setScheme(Scheme.B);
 		});
 		RadioButton btnSchemeC = new RadioButton("Scheme C");
+		btnSchemeC.setPrefWidth(160);
 		btnSchemeC.setOnAction(event -> {
-			if(btnSchemeC.isSelected()){
-				Square[] blocks = gameStart.thisGame.getBlocks();
-				for(int i = 0; i < blocks.length; i++){
-					blocks[i].setView(Scheme.C);
-				}
+			gameStart.thisGame.setScheme(Scheme.C);
+		});
+		btnSchemeA.setToggleGroup(groupSchemeChoose);
+		btnSchemeB.setToggleGroup(groupSchemeChoose);
+		btnSchemeC.setToggleGroup(groupSchemeChoose);
+		
+		// 组合成Scheme选择
+		VBox vboxScheme = new VBox();
+		hboxSchemeChoose.setSpacing(60);
+		hboxSchemeChoose.getChildren().addAll(btnSchemeA, btnSchemeB, btnSchemeC);
+		
+		vboxScheme.getChildren().addAll(labelScheme, hboxSchemeChoose);
+		
+		/**
+		 * 玩家人数
+		 */
+		Label labPlayers = new Label("请选择玩家人数：");
+		
+		ToggleGroup groupPlayers = new ToggleGroup();
+		RadioButton btnOnePlayer = new RadioButton("One");
+		btnOnePlayer.setPrefWidth(160);
+		btnOnePlayer.setSelected(true);
+		btnOnePlayer.setOnAction(event -> {
+			if(btnOnePlayer.isSelected()){
+				gameStart.thisGame.setPlayersNumber(1);
 			}
 		});
 		
-		vBoxSetting.getChildren().addAll(gameModePane);
-		SettingScene = new Scene(vBoxSetting);
+		RadioButton btnTwoPlayer = new RadioButton("Two");
+		btnTwoPlayer.setPrefWidth(160);
+		btnOnePlayer.setOnAction(event -> {
+			if(btnOnePlayer.isSelected()){
+				gameStart.thisGame.setPlayersNumber(2);
+			}
+		});
+		
+		HBox hboxPlayers = new HBox();
+		hboxPlayers.setSpacing(60);
+		hboxPlayers.getChildren().addAll(btnOnePlayer, btnTwoPlayer);
+		
+		VBox vboxPlayer = new VBox();
+		vboxPlayer.getChildren().addAll(labPlayers, hboxPlayers);
+		
+		btnOnePlayer.setToggleGroup(groupPlayers);
+		btnTwoPlayer.setToggleGroup(groupPlayers);
+		
+		// 开始游戏按钮和返回菜单按钮
+		VBox vboxSceneControl = new VBox();
+		Button btnGameStart = new Button("开始游戏");
+		btnGameStart.setOnAction(event -> {
+			if(btnSelf.isSelected()){
+				if(!gameStart.thisGame.getGameMode().equals(Game.GAMEMODE.SELF)){
+					Stage gameStartWarning = new Stage();
+					gameStartWarning.setTitle("警告");
+					FlowPane flWarning = new FlowPane();
+					flWarning.setPrefSize(300, 200);
+					flWarning.setAlignment(Pos.CENTER);
+					Text txtWarning = new Text("你的自定义设置没有点击'采用设置'\n是否要开始默认游戏!\n");
+					
+					HBox hboxMyChoose = new HBox();
+					Button btnOK = new Button("确定");
+					btnOK.setOnAction(event1 -> {
+						gameStartWarning.close();
+						createGameScene();
+						primaryStage.setTitle(gameStart.thisGame.getName());
+						primaryStage.setScene(gameStart.thisGame.mapScenes.get("GameScene"));
+					});
+					
+					Button btnNO = new Button("取消");
+					btnNO.setOnAction(event1 -> {
+						gameStartWarning.close();
+					});
+					
+					hboxMyChoose.setSpacing(100);
+					hboxMyChoose.getChildren().addAll(btnOK, btnNO);
+					
+					flWarning.setOrientation(Orientation.VERTICAL);
+					flWarning.getChildren().addAll(txtWarning, hboxMyChoose);
+					
+					gameStartWarning.setScene(new Scene(flWarning));
+					gameStartWarning.setResizable(false);
+					gameStartWarning.show();
+				} else{
+					createGameScene();
+					primaryStage.setTitle(gameStart.thisGame.getName());
+					primaryStage.setScene(gameStart.thisGame.mapScenes.get("GameScene"));
+				}
+			} else{
+				System.out.println(gameStart.thisGame.getWidth());
+				createGameScene();
+				primaryStage.setTitle(gameStart.thisGame.getName());
+				primaryStage.setScene(gameStart.thisGame.mapScenes.get("GameScene"));
+			}
+		});
+		
+		Button btnBackMain = new Button("返回菜单");
+		btnBackMain.setOnAction(event -> {
+			gameStart.thisGame.stage.setScene(Launcher);
+		});
+		vboxSceneControl.setSpacing(40);
+		vboxSceneControl.getChildren().addAll(btnGameStart, btnBackMain);
+		vboxSceneControl.setAlignment(Pos.CENTER);
+		
+		// 设置的总面板
+		FlowPane FLSetting = new FlowPane();
+		VBox vboxSetting = new VBox();
+		vboxSetting.setSpacing(40);
+		vboxSetting.getChildren().addAll(vboxGameName, vboxScheme, vboxPlayer, FLGameMode);
+		
+		FLSetting.setVgap(60);
+		FLSetting.setOrientation(Orientation.VERTICAL);
+		
+		FLSetting.getChildren().addAll(vboxSetting, vboxSceneControl);
+		SettingScene = new Scene(FLSetting);
+	}
+	
+	/**
+	 * LoadGameScene
+	 */
+	static{
+	
 	}
 	
 	/**
@@ -124,7 +410,7 @@ public class myScenes{
 		flowPane.setOrientation(Orientation.VERTICAL);
 		flowPane.setAlignment(Pos.CENTER);
 		flowPane.setPrefSize(1200, 800);
-		flowPane.setVgap(100);
+		flowPane.setVgap(120);
 		flowPane.setStyle(
 				" -fx-background-image: url(" + "file:src/Resource/Image/Useful/Launcher.jpg" + "); " +
 						" -fx-background-size: 120%;");
@@ -132,24 +418,34 @@ public class myScenes{
 		// Launcher界面的基础功能
 		
 		// 按钮1：开始默认游戏
-		Button btn1 = new Button("游戏测试");
+		Button btn1 = new Button("新建游戏");
 		btn1.setPrefSize(200, 80);
 		btn1.setOnAction(event -> {
-			createGameScene();
-			primaryStage.setTitle("游戏测试");
-//			primaryStage.setScene(SettingScene);
-			primaryStage.setScene(gameStart.thisGame.mapScenes.get("GameScene"));
+			myScenes.primaryStage.setScene(myScenes.SettingScene);
+			myScenes.primaryStage.setTitle("游戏设置");
 		});
-		// 按钮2：进入设置界面
-		Button btn2 = new Button("启动设置");
+		
+		// 按钮2：新建游戏
+		Button btn2 = new Button("加载游戏");
 		btn2.setPrefSize(200, 80);
 		// 绑定基础功能
 		btn2.setOnAction(event -> {
 			myScenes.primaryStage.setScene(myScenes.SettingScene);
+			myScenes.primaryStage.setTitle("游戏设置");
 		});
-		flowPane.getChildren().addAll(btn1, btn2);
+		
+		Button btn3 = new Button("游戏测试");
+		btn3.setPrefSize(200, 80);
+		btn3.setOnAction(event -> {
+			createGameScene();
+			primaryStage.setTitle("游戏名称");
+			primaryStage.setScene(gameStart.thisGame.mapScenes.get("GameScene"));
+		});
+		
+		flowPane.getChildren().addAll(btn1, btn2, btn3);
 		myScenes.Launcher = new Scene(flowPane);
 		gameStart.thisGame.mapScenes.put("Launcher", Launcher);
+		
 	}
 	
 	/**
@@ -222,61 +518,63 @@ public class myScenes{
 		 *  游戏面板
 		 */
 		
-		// 游戏区域
-		VBox vbInfoAndBooms = new VBox(10);
-		
 		// 游戏区域 - 信息面板
 		FlowPane infoArea = new FlowPane();
 		infoArea.setOrientation(Orientation.HORIZONTAL);
 		
-		// 游戏区域 - 信息面板
-		// 临时用文本代替
-		TextArea txtAreaInfo = new TextArea();
-		txtAreaInfo.setPrefSize(40*gameStart.thisGame.getWidth(), 200);
-		txtAreaInfo.setText("未来的信息面板");
-		
-		infoArea.getChildren().add(txtAreaInfo);
-		
 		// 游戏区域 - 雷区面板
 		GridPane BoomsPane = myScenes.createBoomsPane(width, height);
-		// 雷区视觉调控
-		
-		// 游戏区域 - 闲话面板
-		Pane mulikas = new Pane();
-		mulikas.setPrefSize(40*gameStart.thisGame.getWidth(), 100);
-		Label labMulikas = new Label("Mulikas:感谢游玩");
-		labMulikas.setStyle("-fx-border-style:solid;"
-		);
-		labMulikas.setPrefSize(40*gameStart.thisGame.getWidth(), 50);
-		labMulikas.setAlignment(Pos.CENTER);
-		
-		mulikas.getChildren().add(labMulikas);
-		
-		// 加入信息面板、雷区面板
-		vbInfoAndBooms.setAlignment(Pos.CENTER);
-		vbInfoAndBooms.getChildren().addAll(infoArea, BoomsPane, mulikas);
 		// 游戏区域 - END
 		
 		// 控制区域
 		// 控制区域 - 控制面板
-		FlowPane controlArea = new FlowPane();
+		RadioButton btnTest = new RadioButton();
+		btnTest.setText("作弊模式");
+		btnTest.setSelected(false);
+		btnTest.setOnAction(event -> {
+			if(btnTest.isSelected()){
+				System.out.println("启动作弊模式");
+			}
+		});
 		
-		Button btnTest = new Button();
-		btnTest.setText("未来的控制器");
-		controlArea.getChildren().add(btnTest);
+		Button btnSave = new Button("Save Game");
+		btnSave.setOnAction(event -> {
+			gameStart.thisGame.saveGame(gameStart.thisGame.getName());
+		});
+		
+		btnSave.setOnAction(event -> {
+			System.out.println(gameStart.thisGame.getRecorder().toString());
+			gameStart.thisGame.saveGame(gameStart.thisGame.getName());
+		});
 		
 		// 菜单栏、游戏区域、控制区域加入到游戏面板
+		// 游戏区域 - 闲话面板
+		
+		Label labOutArea = new Label("游戏动态：");
+		TextArea textAreaOut = new TextArea("Mulikas:感谢游玩!");
+		textAreaOut.setPrefSize(gameStart.thisGame.getHeight()*40, 200);
+		
+		VBox vboxControlArea = new VBox();
+		vboxControlArea.setStyle(
+				"-fx-border-style:solid;"
+		);
+		
+		vboxControlArea.setSpacing(20);
+		vboxControlArea.setPrefHeight(gameStart.thisGame.getHeight()*40);
+		
+		vboxControlArea.getChildren().addAll(labOutArea, textAreaOut, btnTest, btnSave);
 		
 		FlowPane flowGamePane = new FlowPane();
 		flowGamePane.setOrientation(Orientation.VERTICAL);
-		flowGamePane.getChildren().addAll(vbInfoAndBooms, controlArea);
+		flowGamePane.getChildren().addAll(BoomsPane, vboxControlArea);
+		flowGamePane.setHgap(20);
 		
 		// 设置游戏场景
 		
-		VBox gamePane = new VBox();
-		gamePane.getChildren().addAll(menuBarGame, flowGamePane);
+		VBox vboxGamePane = new VBox();
+		vboxGamePane.getChildren().addAll(menuBarGame, flowGamePane);
 		
-		GameScene = new Scene(gamePane);
+		GameScene = new Scene(vboxGamePane);
 		gameStart.thisGame.mapScenes.put("GameScene", GameScene);
 		return gameStart.thisGame.mapScenes.get("GameScene");
 	}
@@ -290,7 +588,6 @@ public class myScenes{
 	 */
 	public static GridPane createBoomsPane(int width, int height){
 		GridPane boomsPane = new GridPane();
-		
 		
 		Square[] Blocks = null;
 		Blocks = new Square[width*height];
