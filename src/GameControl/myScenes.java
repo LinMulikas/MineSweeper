@@ -1,22 +1,26 @@
-package Resource.Scene;
+package GameControl;
 
-import GameControl.Square;
 import MainGame.Game;
 import MainGame.gameStart;
 import Resource.Scheme.Scheme;
 import javafx.geometry.Orientation;
 import javafx.geometry.Pos;
+import javafx.scene.Node;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.layout.*;
 import javafx.scene.text.Text;
 import javafx.stage.Stage;
 
+import java.util.HashMap;
+import java.util.Map;
 import java.util.function.UnaryOperator;
 
 public class myScenes{
 	// 静态成员
 	public static Stage primaryStage = gameStart.thisGame.mapStages.get("primaryStage");
+	public static Map<String, Node> myNodes = new HashMap<String, Node>();
+	
 	/**
 	 * Scenes
 	 */
@@ -290,24 +294,54 @@ public class myScenes{
 		/**
 		 * 玩家人数
 		 */
-		Label labPlayers = new Label("请选择玩家人数：");
+		
+		HBox hboxSlider = new HBox();
+		Text txtSlider = new Text("请选择步数：");
+		
+		Slider sliderSteps = new Slider(1, 5, 3);
+		sliderSteps.setValue(1);
+		gameStart.thisGame.getRecorder().setStepsChance(1);
+		sliderSteps.setShowTickLabels(true);
+		sliderSteps.setShowTickMarks(true);
+		sliderSteps.setMajorTickUnit(1);
+		sliderSteps.setMinorTickCount(0);
+		sliderSteps.setSnapToTicks(true);
+		sliderSteps.setPrefWidth(200);
+		gameStart.thisGame.getRecorder().setPlayerNumber(1);
+		
+		sliderSteps.setOnMouseDragged(event -> {
+			gameStart.thisGame.getRecorder().setStepsChance((int) sliderSteps.getValue());
+		});
+		
+		hboxSlider.getChildren().addAll(txtSlider, sliderSteps);
+		
+		hboxSlider.setVisible(false);
+		Label labPlayers = new Label("请选择玩家步数：");
 		
 		ToggleGroup groupPlayers = new ToggleGroup();
+		
 		RadioButton btnOnePlayer = new RadioButton("One");
 		btnOnePlayer.setPrefWidth(160);
 		btnOnePlayer.setSelected(true);
+		
+		gameStart.thisGame.getRecorder().setPlayerNumber(1);
+		
 		btnOnePlayer.setOnAction(event -> {
 			if(btnOnePlayer.isSelected()){
-				gameStart.thisGame.setPlayersNumber(1);
+				gameStart.thisGame.getRecorder().setPlayerNumber(1);
+				hboxSlider.setVisible(false);
 			}
 		});
 		
 		RadioButton btnTwoPlayer = new RadioButton("Two");
 		btnTwoPlayer.setPrefWidth(160);
-		btnOnePlayer.setOnAction(event -> {
-			if(btnOnePlayer.isSelected()){
-				gameStart.thisGame.setPlayersNumber(2);
+		
+		btnTwoPlayer.setOnAction(event -> {
+			gameStart.thisGame.getRecorder().setPlayerNumber(2);
+			if(btnTwoPlayer.isSelected()){
+				hboxSlider.setVisible(true);
 			}
+			
 		});
 		
 		HBox hboxPlayers = new HBox();
@@ -315,7 +349,8 @@ public class myScenes{
 		hboxPlayers.getChildren().addAll(btnOnePlayer, btnTwoPlayer);
 		
 		VBox vboxPlayer = new VBox();
-		vboxPlayer.getChildren().addAll(labPlayers, hboxPlayers);
+		vboxPlayer.setSpacing(10);
+		vboxPlayer.getChildren().addAll(labPlayers, hboxPlayers, hboxSlider);
 		
 		btnOnePlayer.setToggleGroup(groupPlayers);
 		btnTwoPlayer.setToggleGroup(groupPlayers);
@@ -324,6 +359,9 @@ public class myScenes{
 		VBox vboxSceneControl = new VBox();
 		Button btnGameStart = new Button("开始游戏");
 		btnGameStart.setOnAction(event -> {
+			// 游戏初始化内容检验
+			System.out.println("玩家数量：" + gameStart.thisGame.getRecorder().getPlayerNumber());
+			
 			if(btnSelf.isSelected()){
 				if(!gameStart.thisGame.getGameMode().equals(Game.GAMEMODE.SELF)){
 					Stage gameStartWarning = new Stage();
@@ -361,12 +399,13 @@ public class myScenes{
 					primaryStage.setTitle(gameStart.thisGame.getName());
 					primaryStage.setScene(gameStart.thisGame.mapScenes.get("GameScene"));
 				}
-			} else{
-				System.out.println(gameStart.thisGame.getWidth());
-				createGameScene();
-				primaryStage.setTitle(gameStart.thisGame.getName());
-				primaryStage.setScene(gameStart.thisGame.mapScenes.get("GameScene"));
 			}
+			if(btnTwoPlayer.isSelected()){
+				gameStart.thisGame.getRecorder().setStepsChance((int) sliderSteps.getValue());
+			}
+			createGameScene();
+			primaryStage.setTitle(gameStart.thisGame.getName());
+			primaryStage.setScene(gameStart.thisGame.mapScenes.get("GameScene"));
 		});
 		
 		Button btnBackMain = new Button("返回菜单");
@@ -528,11 +567,11 @@ public class myScenes{
 		
 		// 控制区域
 		// 控制区域 - 控制面板
-		RadioButton btnTest = new RadioButton();
-		btnTest.setText("作弊模式");
-		btnTest.setSelected(false);
-		btnTest.setOnAction(event -> {
-			if(btnTest.isSelected()){
+		RadioButton btnCheat = new RadioButton();
+		btnCheat.setText("作弊模式");
+		btnCheat.setSelected(false);
+		btnCheat.setOnAction(event -> {
+			if(btnCheat.isSelected()){
 				System.out.println("启动作弊模式");
 			}
 		});
@@ -551,18 +590,69 @@ public class myScenes{
 		// 游戏区域 - 闲话面板
 		
 		Label labOutArea = new Label("游戏动态：");
-		TextArea textAreaOut = new TextArea("Mulikas:感谢游玩!");
-		textAreaOut.setPrefSize(gameStart.thisGame.getHeight()*40, 200);
+
+//		TextArea textAreaOut = new TextArea("Mulikas:感谢游玩!");
+//		textAreaOut.setPrefSize(gameStart.thisGame.getHeight()*40, 200);
 		
 		VBox vboxControlArea = new VBox();
 		vboxControlArea.setStyle(
 				"-fx-border-style:solid;"
 		);
 		
+		Text labScore = new Text("得分");
+		Text labMistake = new Text("失误");
+		
+		Label labPlayerA = new Label("PlayerA:");
+		
+		Text txtScoreA = new Text("0");
+		Text txtMistakeA = new Text("0");
+		gameStart.thisGame.setScoreA(txtScoreA);
+		gameStart.thisGame.setMistakeA(txtMistakeA);
+		
+		Label labPlayerB = new Label("PlayerB:");
+		Text txtScoreB = new Text("0");
+		Text txtMistakeB = new Text("0");
+		gameStart.thisGame.setScoreB(txtScoreB);
+		gameStart.thisGame.setMistakeB(txtMistakeB);
+		
+		TextArea txtaInfomation = new TextArea();
+		txtaInfomation.setPrefSize(300, 200);
+		
+		// 根据游戏模式选择B的可见性
+		if(gameStart.thisGame.getRecorder().getPlayerNumber() == 1){
+			labPlayerB.setVisible(false);
+			txtScoreB.setVisible(false);
+			txtMistakeB.setVisible(false);
+		}
+		
+		GridPane gridPlayers = new GridPane();
+		gridPlayers.setVgap(10);
+		gridPlayers.setHgap(10);
+		gridPlayers.add(labScore, 2, 1);
+		gridPlayers.add(labMistake, 3, 1);
+		
+		gridPlayers.add(labPlayerA, 1, 2);
+		gridPlayers.add(txtScoreA, 2, 2);
+		gridPlayers.add(txtMistakeA, 3, 2);
+		
+		gridPlayers.add(labPlayerB, 1, 3);
+		gridPlayers.add(txtScoreB, 2, 3);
+		gridPlayers.add(txtMistakeB, 3, 3);
+		gridPlayers.add(txtaInfomation, 1, 4);
+		
+		// 功能按钮A
+		Text txtControl = new Text("控制区域：");
+		GridPane gridControl = new GridPane();
+		gridControl.setVgap(20);
+		gridControl.add(txtControl, 1, 1);
+		gridControl.add(btnCheat, 1, 3);
+		gridControl.add(btnSave, 1, 2);
+		
 		vboxControlArea.setSpacing(20);
 		vboxControlArea.setPrefHeight(gameStart.thisGame.getHeight()*40);
+		vboxControlArea.setPrefWidth(200);
 		
-		vboxControlArea.getChildren().addAll(labOutArea, textAreaOut, btnTest, btnSave);
+		vboxControlArea.getChildren().addAll(labOutArea, gridPlayers, gridControl);
 		
 		FlowPane flowGamePane = new FlowPane();
 		flowGamePane.setOrientation(Orientation.VERTICAL);

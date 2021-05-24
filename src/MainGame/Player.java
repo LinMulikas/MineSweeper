@@ -1,5 +1,8 @@
 package MainGame;
 
+import javafx.beans.property.SimpleStringProperty;
+import javafx.beans.value.ObservableValue;
+
 public class Player{
 	public String playerName;
 	private int score = 0;
@@ -17,6 +20,18 @@ public class Player{
 		this.score = score;
 	}
 	
+	public void addScore(){
+		this.score++;
+	}
+	
+	public void minusScore(){
+		this.score--;
+	}
+	
+	public void addMistake(){
+		this.mistake++;
+	}
+	
 	public int getMistake(){
 		return mistake;
 	}
@@ -24,4 +39,5 @@ public class Player{
 	public void setMistake(int mistake){
 		this.mistake = mistake;
 	}
+	
 }

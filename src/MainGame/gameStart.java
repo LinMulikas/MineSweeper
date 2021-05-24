@@ -1,13 +1,12 @@
 package MainGame;
 
-import Resource.Scene.myScenes;
+import GameControl.myScenes;
 import Resource.Scheme.Scheme;
 import com.sun.java.swing.plaf.windows.WindowsClassicLookAndFeel;
 import javafx.application.Application;
 import javafx.stage.Stage;
 
 import javax.swing.*;
-import javax.swing.plaf.nimbus.NimbusLookAndFeel;
 
 public class gameStart extends Application{
 	// 初始化一个默认设置的游戏

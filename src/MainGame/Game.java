@@ -4,6 +4,7 @@ import GameControl.Position;
 import GameControl.Square;
 import Resource.Scheme.Scheme;
 import javafx.scene.Scene;
+import javafx.scene.text.Text;
 import javafx.stage.Stage;
 
 import java.io.*;
@@ -21,16 +22,22 @@ public class Game{
 	// Scene 容器
 	public Map<String, Scene> mapScenes = new HashMap<>();
 	private Square.sweepType sweepType = Square.sweepType.CONTINOUS;
+	// 计分板
+	private Text scoreA = null;
+	private Text scoreB = null;
+	private Text mistakeA = null;
+	private Text mistakeB = null;
 	
 	// Scheme
 	private Scheme scheme;
 	/**
 	 * 游戏核心属性
 	 */
-	private Player[] players = null;
+	
 	private String GameName;
 	private int BoomsNumber;
 	private int MaxBoomsNumber;
+	private Player thisPlayer = null;
 	// 游戏中的按钮对象
 	private Square[] Blocks = null;
 	//private String PlayerName;
@@ -53,7 +60,7 @@ public class Game{
 	 * 1~8: Number
 	 * 9:   Boom
 	 */
-	private int[][] InnerArea;
+	private int[][] InnerArea = null;
 	
 	/**
 	 * <pre>
@@ -64,6 +71,7 @@ public class Game{
 		this.setGameMode(GAMEMODE.MIDDLE);
 		this.sweepType = Square.sweepType.SINGLE;
 		this.scheme = Scheme.B;
+		thisPlayer = recorder.players[0];
 	}
 	
 	public Game(GAMEMODE gamemode, Scheme iScheme){
@@ -143,6 +151,45 @@ public class Game{
 	
 	public void count(){
 		this.stepCount++;
+		if(this.recorder.playerNumber == 1){
+			thisPlayer = recorder.players[0];
+		}
+		
+		if(this.recorder.playerNumber == 2){
+			int a =
+					(stepCount - 1)/gameStart.thisGame.getRecorder().getStepsChance();
+			
+			int b = a%2;
+			
+			// 加到玩家头上
+			if(b == 0){
+				thisPlayer = recorder.players[0];
+			}
+			if(b == 1){
+				thisPlayer = recorder.players[1];
+			}
+		}
+		
+	}
+	
+	public Text getThisMistakeText(){
+		switch(thisPlayer.playerName){
+			case "A":
+				return mistakeA;
+			case "B":
+				return mistakeB;
+		}
+		return null;
+	}
+	
+	public Text getThisScoreText(){
+		switch(thisPlayer.playerName){
+			case "A":
+				return scoreA;
+			case "B":
+				return scoreB;
+		}
+		return null;
 	}
 	
 	public int[][] getInnerArea(){
@@ -150,7 +197,7 @@ public class Game{
 	}
 	
 	public void setInnerArea(int[][] innerArea){
-		InnerArea = innerArea;
+		this.InnerArea = innerArea.clone();
 	}
 	
 	public int getBoomsNumber(){
@@ -256,16 +303,49 @@ public class Game{
 		this.sweepType = sweepType;
 	}
 	
-	public Player[] getPlayers(){
-		return players;
+	public Player getThisPlayer(){
+		return thisPlayer;
 	}
 	
-	public void setPlayers(Player[] players){
-		this.players = players;
+	public void setThisPlayer(Player thisPlayer){
+		this.thisPlayer = thisPlayer;
 	}
 	
-	public void setPlayersNumber(int number){
-		this.players = new Player[number];
+	public Text getScoreA(){
+		return scoreA;
+	}
+	
+	public void setScoreA(Text scoreA){
+		this.scoreA = scoreA;
+	}
+	
+	public Text getScoreB(){
+		return scoreB;
+	}
+	
+	public void setScoreB(Text scoreB){
+		this.scoreB = scoreB;
+	}
+	
+	public Text getMistakeA(){
+		return mistakeA;
+	}
+	
+	public void setMistakeA(Text mistakeA){
+		this.mistakeA = mistakeA;
+	}
+	
+	public Text getMistakeB(){
+		return mistakeB;
+	}
+	
+	public void setMistakeB(Text mistakeB){
+		this.mistakeB = mistakeB;
+	}
+	
+	// 游戏胜负判定
+	public void judgeWinner(){
+	
 	}
 	
 	public enum GAMEMODE{
@@ -276,8 +356,19 @@ public class Game{
 	}
 	
 	public static class Recorder implements Serializable{
+		private Player[] players = {new Player("A"), new Player("B"), new Player("C")};
+		private int playerNumber = 1;
+		private int stepsChance = 0;
 		private ArrayList<ArrayList<Integer>> stepList = new ArrayList<>();
 		private ArrayList<Integer> step = new ArrayList<>();
+		
+		public int getStepsChance(){
+			return this.stepsChance;
+		}
+		
+		public void setStepsChance(int stepsChance){
+			this.stepsChance = stepsChance;
+		}
 		
 		// 记录每一步
 		public void update(){
@@ -311,6 +402,22 @@ public class Game{
 		
 		public void setStep(ArrayList<Integer> step){
 			this.step = step;
+		}
+		
+		public int getPlayerNumber(){
+			return playerNumber;
+		}
+		
+		public void setPlayerNumber(int playerNumber){
+			this.playerNumber = playerNumber;
+		}
+		
+		public Player[] getPlayers(){
+			return players;
+		}
+		
+		public void setPlayers(Player[] players){
+			this.players = players;
 		}
 	}
 	
