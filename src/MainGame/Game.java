@@ -1,9 +1,11 @@
 package MainGame;
 
+import GameControl.Block;
 import GameControl.Position;
 import GameControl.Square;
 import Resource.Scheme.Scheme;
 import javafx.scene.Scene;
+import javafx.scene.control.TextArea;
 import javafx.scene.text.Text;
 import javafx.stage.Stage;
 
@@ -22,11 +24,16 @@ public class Game{
 	// Scene 容器
 	public Map<String, Scene> mapScenes = new HashMap<>();
 	private Square.sweepType sweepType = Square.sweepType.CONTINOUS;
+	// Node
 	// 计分板
 	private Text scoreA = null;
 	private Text scoreB = null;
 	private Text mistakeA = null;
 	private Text mistakeB = null;
+	// 信息面板
+	private TextArea infoArea = null;
+	// Winner
+	private Text txtWinner = null;
 	
 	// Scheme
 	private Scheme scheme;
@@ -37,6 +44,7 @@ public class Game{
 	private String GameName;
 	private int BoomsNumber;
 	private int MaxBoomsNumber;
+	private ArrayList<Integer> unOpenBooms = new ArrayList();
 	private Player thisPlayer = null;
 	// 游戏中的按钮对象
 	private Square[] Blocks = null;
@@ -49,7 +57,6 @@ public class Game{
 	private GAMEMODE GameMode;
 	private Recorder recorder = new Recorder();
 	private int stepCount = 0;
-	private int playerSteps;
 	
 	// Inner群
 	
@@ -345,7 +352,99 @@ public class Game{
 	
 	// 游戏胜负判定
 	public void judgeWinner(){
+		if(recorder.playerNumber == 1){
+			if(unOpenBooms.size() == 0){
+				// 单人模式全开雷，玩家A获胜
+				txtWinner.setText(thisPlayer.playerName + "获胜！");
+				gameStart.thisGame.mapStages.get("primaryStage").setScene(gameStart.thisGame.mapScenes.get("Winner"));
+				
+			}
+		}
+		if(recorder.playerNumber == 2){
+			int distance = Math.abs(recorder.players[0].getScore() - recorder.players[1].getScore());
+			// case1:
+			if(distance > unOpenBooms.size()){
+				if(recorder.players[0].getScore() > recorder.players[1].getScore()){
+					txtWinner.setText(recorder.players[0].playerName + "获胜！");
+					gameStart.thisGame.mapStages.get("primaryStage").setScene(gameStart.thisGame.mapScenes.get("Winner"
+					));
+					
+				} else{
+					txtWinner.setText(recorder.players[1].playerName + "获胜！");
+					gameStart.thisGame.mapStages.get("primaryStage").setScene(gameStart.thisGame.mapScenes.get("Winner"
+					));
+					
+				}
+			}
+			if(unOpenBooms.size() == 0){
+				if(recorder.players[0].getScore() > recorder.players[1].getScore()){
+					txtWinner.setText(recorder.players[0].playerName + "获胜！");
+					gameStart.thisGame.mapStages.get("primaryStage").setScene(gameStart.thisGame.mapScenes.get("Winner"
+					));
+					
+				} else if(recorder.players[0].getScore() < recorder.players[1].getScore()){
+					txtWinner.setText(recorder.players[1].playerName + "获胜！");
+					gameStart.thisGame.mapStages.get("primaryStage").setScene(gameStart.thisGame.mapScenes.get("Winner"
+					));
+					
+				} else{
+					if(recorder.players[0].getMistake() > recorder.players[1].getMistake()){
+						txtWinner.setText(recorder.players[1].playerName + "获胜！");
+						gameStart.thisGame.mapStages.get("primaryStage").setScene(gameStart.thisGame.mapScenes.get(
+								"Winner"));
+						
+					} else if(recorder.players[0].getMistake() < recorder.players[1].getMistake()){
+						txtWinner.setText(recorder.players[0].playerName + "获胜！");
+						gameStart.thisGame.mapStages.get("primaryStage").setScene(gameStart.thisGame.mapScenes.get(
+								"Winner"));
+						
+					} else{
+						txtWinner.setText("平局啦！");
+						gameStart.thisGame.mapStages.get("primaryStage").setScene(gameStart.thisGame.mapScenes.get(
+								"Winner"));
+						
+					}
+				}
+			}
+		}
+		
+	}
 	
+	public TextArea getInfoArea(){
+		return infoArea;
+	}
+	
+	public void setInfoArea(TextArea infoArea){
+		this.infoArea = infoArea;
+	}
+	
+	public ArrayList<Integer> getUnOpenBooms(){
+		return unOpenBooms;
+	}
+	
+	public void setUnOpenBooms(ArrayList<Integer> unOpenBooms){
+		this.unOpenBooms = unOpenBooms;
+	}
+	
+	public void cheatMode(Boolean bool){
+		if(bool){
+			for(int i : unOpenBooms){
+				this.getBlocks()[i - 1].openHere();
+			}
+		}
+		if(!bool){
+			for(int i : unOpenBooms){
+				this.getBlocks()[i - 1].setStatus(Block.PreStatus.CLOSE);
+			}
+		}
+	}
+	
+	public Text getTxtWinner(){
+		return txtWinner;
+	}
+	
+	public void setTxtWinner(Text txtWinner){
+		this.txtWinner = txtWinner;
 	}
 	
 	public enum GAMEMODE{

@@ -2,7 +2,7 @@ package GameControl;
 
 import javafx.scene.control.Button;
 
-abstract class Block extends Button{
+public abstract class Block extends Button{
 	private int XIndex;
 	private int YIndex;
 	private int numID;
@@ -35,7 +35,7 @@ abstract class Block extends Button{
 	
 	abstract void setStatus(PreStatus status);
 	
-	enum PreStatus{
+	public enum PreStatus{
 		CLOSE,
 		FLAG,
 		BOOM,

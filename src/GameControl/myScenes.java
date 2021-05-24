@@ -9,6 +9,7 @@ import javafx.scene.Node;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.layout.*;
+import javafx.scene.text.Font;
 import javafx.scene.text.Text;
 import javafx.stage.Stage;
 
@@ -28,6 +29,36 @@ public class myScenes{
 	public static Scene SettingScene;
 	// Launcher
 	public static Scene Launcher;
+	// Winner
+	public static Scene Winner;
+	
+	static{
+		FlowPane flWinner = new FlowPane();
+		flWinner.setPrefSize(1200, 800);
+		Text txtWinner = new Text("Test");
+		gameStart.thisGame.setTxtWinner(txtWinner);
+		txtWinner.setFont(Font.font(24));
+		
+		Button btnSave = new Button("保存分数");
+		btnSave.setOnAction(event -> {
+			// 保存分数
+			
+		});
+		btnSave.setPrefSize(120, 40);
+		
+		Button btnMain = new Button("返回菜单");
+		btnMain.setOnAction(event -> {
+			primaryStage.setScene(Launcher);
+		});
+		btnMain.setPrefSize(120, 40);
+		
+		flWinner.setOrientation(Orientation.VERTICAL);
+		flWinner.setAlignment(Pos.CENTER);
+		flWinner.setVgap(120);
+		flWinner.getChildren().addAll(txtWinner, btnSave, btnMain);
+		Winner = new Scene(flWinner);
+		gameStart.thisGame.mapScenes.put("Winner", Winner);
+	}
 	
 	/**
 	 * SettingScene 细节
@@ -427,6 +458,7 @@ public class myScenes{
 		
 		FLSetting.getChildren().addAll(vboxSetting, vboxSceneControl);
 		SettingScene = new Scene(FLSetting);
+		gameStart.thisGame.mapScenes.put("SettingScene", SettingScene);
 	}
 	
 	/**
@@ -484,7 +516,6 @@ public class myScenes{
 		flowPane.getChildren().addAll(btn1, btn2, btn3);
 		myScenes.Launcher = new Scene(flowPane);
 		gameStart.thisGame.mapScenes.put("Launcher", Launcher);
-		
 	}
 	
 	/**
@@ -573,6 +604,9 @@ public class myScenes{
 		btnCheat.setOnAction(event -> {
 			if(btnCheat.isSelected()){
 				System.out.println("启动作弊模式");
+				gameStart.thisGame.cheatMode(true);
+			} else{
+				gameStart.thisGame.cheatMode(false);
 			}
 		});
 		
@@ -616,7 +650,9 @@ public class myScenes{
 		gameStart.thisGame.setMistakeB(txtMistakeB);
 		
 		TextArea txtaInfomation = new TextArea();
-		txtaInfomation.setPrefSize(300, 200);
+		txtaInfomation.setEditable(false);
+		
+		gameStart.thisGame.setInfoArea(txtaInfomation);
 		
 		// 根据游戏模式选择B的可见性
 		if(gameStart.thisGame.getRecorder().getPlayerNumber() == 1){
@@ -638,7 +674,6 @@ public class myScenes{
 		gridPlayers.add(labPlayerB, 1, 3);
 		gridPlayers.add(txtScoreB, 2, 3);
 		gridPlayers.add(txtMistakeB, 3, 3);
-		gridPlayers.add(txtaInfomation, 1, 4);
 		
 		// 功能按钮A
 		Text txtControl = new Text("控制区域：");
@@ -650,9 +685,9 @@ public class myScenes{
 		
 		vboxControlArea.setSpacing(20);
 		vboxControlArea.setPrefHeight(gameStart.thisGame.getHeight()*40);
-		vboxControlArea.setPrefWidth(200);
+		vboxControlArea.setPrefWidth(400);
 		
-		vboxControlArea.getChildren().addAll(labOutArea, gridPlayers, gridControl);
+		vboxControlArea.getChildren().addAll(labOutArea, gridPlayers, txtaInfomation, gridControl);
 		
 		FlowPane flowGamePane = new FlowPane();
 		flowGamePane.setOrientation(Orientation.VERTICAL);

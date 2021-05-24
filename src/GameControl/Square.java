@@ -74,10 +74,16 @@ public class Square extends Block{
 			int theID = 1 + ran.nextInt(width*height);
 			// 排除了首发触雷
 			if(theID != clickedID){
-				System.out.printf("第%d个雷,id:%d\n", cnt + 1, theID);
-				boomsID.add(theID);
-				inner[Position.idToX(theID) - 1][Position.idToY(theID) - 1] = 9;
-				System.out.printf("(%d,%d)是雷.\n", Position.idToX(theID), Position.idToY(theID));
+				// 排除已经出现的雷
+				if(!boomsID.contains(theID)){
+					System.out.printf("第%d个雷,id:%d\n", cnt + 1, theID);
+					boomsID.add(theID);
+					inner[Position.idToX(theID) - 1][Position.idToY(theID) - 1] = 9;
+					System.out.printf("(%d,%d)是雷.\n", Position.idToX(theID), Position.idToY(theID));
+					
+				} else{
+					cnt--;
+				}
 			} else{
 				cnt--;
 			}
@@ -207,13 +213,18 @@ public class Square extends Block{
 		
 		// 成功生成了一个可用的InnerArea
 		gameStart.thisGame.setInnerArea(inner);
-		// 临时视觉检验
+		
+		// 记录雷的位置
 		for(int j = 0; j < gameStart.thisGame.getHeight(); j++){
 			for(int i = 0; i < gameStart.thisGame.getWidth(); i++){
 				System.out.printf("%d ", gameStart.thisGame.getInnerArea()[i][j]);
+				if(gameStart.thisGame.getInnerArea()[i][j] == 9){
+					gameStart.thisGame.getUnOpenBooms().add(Position.positionToId(i + 1, j + 1));
+				}
 			}
 			System.out.println();
 		}
+		System.out.println(gameStart.thisGame.getUnOpenBooms().toString());
 		return true;
 	}
 	
@@ -578,22 +589,20 @@ public class Square extends Block{
 			// 分左右键讨论按键情况
 			switch(event.getButton()){
 				case PRIMARY:
-					// 计数
-					if(iSquare.getStatus().equals(PreStatus.CLOSE)){
-						gameStart.thisGame.count();
-						// 临时检验
-						System.out.println("有Count:" + gameStart.thisGame.getStepCount());
-					}
-					// 扫雷
 					// 如果点击了未开放的方块
 					if(iSquare.getStatus().equals(PreStatus.CLOSE)){
-						// 位置检验
-						System.out.printf("按钮%d被左键单击,位置(%d,%d)\n",
-								iSquare.getNumId(),
-								iSquare.position.getX(),
-								iSquare.position.getY()
+						// 计数
+						gameStart.thisGame.count();
+						// 信息输出
+						gameStart.thisGame.getInfoArea().appendText("\n");
+						gameStart.thisGame.getInfoArea().appendText("\n");
+						gameStart.thisGame.getInfoArea().appendText("第" + gameStart.thisGame.getStepCount() + "步：\n"
 						);
-						
+						gameStart.thisGame.getInfoArea().appendText("玩家" +
+								gameStart.thisGame.getThisPlayer().playerName +
+								"点击了(" + iSquare.position.getX() + "," + iSquare.position.getY() + ").");
+//						gameStart.thisGame.getInfoArea().appendText("ID:" + iSquare.getNumId() + "\n\n");
+//
 						// 首击生成棋盘
 						if(gameStart.thisGame.getStepCount() == 1){
 							boolean judge = false;
@@ -621,46 +630,28 @@ public class Square extends Block{
 //						System.out.println();
 						// 更新记录器
 						// 计数检验
-						System.out.printf("当前点击了%d次\n", gameStart.thisGame.getStepCount());
+//						System.out.printf("当前点击了%d次\n", gameStart.thisGame.getStepCount());
 //						System.out.println(gameStart.thisGame.getStepCount());
 						gameStart.thisGame.getRecorder().update();
 						
 						// 更新分数
 						// 如果踩雷了
 						if(iSquare.findInnerNumber() == 9){
+							gameStart.thisGame.getUnOpenBooms().remove(gameStart.thisGame.getUnOpenBooms().indexOf(iSquare.getNumId()));
 							gameStart.thisGame.getThisPlayer().minusScore();
+							gameStart.thisGame.getThisPlayer().addMistake();
+							gameStart.thisGame.getInfoArea().appendText("\n");
+							gameStart.thisGame.getInfoArea().appendText("\n");
+							gameStart.thisGame.getInfoArea().appendText("玩家" + gameStart.thisGame.getThisPlayer().playerName
+									+ "踩中了地雷！");
 							gameStart.thisGame.getThisScoreText().setText("" + gameStart.thisGame.getThisPlayer().getScore());
-//							// 单人模式
-//							if(gameStart.thisGame.getRecorder().getPlayerNumber() == 1){
-//								gameStart.thisGame.getRecorder().getPlayers()[0].minusScore();
-//								System.out.println("分数：" + gameStart.thisGame.getThisPlayer().getScore());
-//							}
-//							// 双人模式
-//							if(gameStart.thisGame.getRecorder().getPlayerNumber() == 2){
-//								int a =
-//										gameStart.thisGame.getStepCount()/gameStart.thisGame.getRecorder()
-//										.getStepsChance();
-//								System.out.println("有step:" + gameStart.thisGame.getStepCount());
-//								int b = a%2;
-//								// 加到玩家头上
-//								if(b == 0){
-//									gameStart.thisGame.getRecorder().getPlayers()[0].minusScore();
-//									int iScore = gameStart.thisGame.getRecorder().getPlayers()[0].getScore();
-//									System.out.println(iScore);
-//									gameStart.thisGame.getScoreA().setText("" + iScore);
-//								}
-//								if(b == 1){
-//									gameStart.thisGame.getRecorder().getPlayers()[1].minusScore();
-//									gameStart.thisGame.getScoreB().setText("" + gameStart.thisGame.getRecorder()
-//									.getPlayers()[1].getScore());
-//								}
-//							}
-							
+							gameStart.thisGame.judgeWinner();
 						}
 						// 如果没踩雷
 						else{
 							gameStart.thisGame.getThisPlayer().addScore();
 							gameStart.thisGame.getThisScoreText().setText("" + gameStart.thisGame.getThisPlayer().getScore());
+							gameStart.thisGame.judgeWinner();
 						}
 					}
 					break;
@@ -672,31 +663,48 @@ public class Square extends Block{
 					// 如果是CLOSE的块可以标记
 					if(iSquare.getStatus().equals(PreStatus.CLOSE)){
 						gameStart.thisGame.count();
-						System.out.printf("按钮%d被右键单击,位置(%d,%d)\n", iSquare.getNumId(), iSquare.position.getX(),
-								iSquare.position.getY());
+						// 信息输出
+						gameStart.thisGame.getInfoArea().appendText("\n");
+						gameStart.thisGame.getInfoArea().appendText("\n");
+						gameStart.thisGame.getInfoArea().appendText("第" + gameStart.thisGame.getStepCount() + "步：\n"
+						);
+						gameStart.thisGame.getInfoArea().appendText("玩家" +
+								gameStart.thisGame.getThisPlayer().playerName +
+								"标记了(" + iSquare.position.getX() + "," + iSquare.position.getY() + ").\n");
+//						gameStart.thisGame.getInfoArea().appendText("ID:" + iSquare.getNumId() + "\n");
+						
 						if(gameStart.thisGame.getInnerArea()[iSquare.getX() - 1][iSquare.getY() - 1] == 9){
+							gameStart.thisGame.getUnOpenBooms().remove(gameStart.thisGame.getUnOpenBooms().indexOf(iSquare.getNumId()));
+							gameStart.thisGame.getInfoArea().appendText("玩家" + gameStart.thisGame.getThisPlayer().playerName
+									+ "标记正确！");
 							gameStart.thisGame.getThisPlayer().addScore();
 							gameStart.thisGame.getThisScoreText().setText("" + gameStart.thisGame.getThisPlayer().getScore());
 							// 记录分数
 							iSquare.setStatus(PreStatus.FLAG);
+							gameStart.thisGame.judgeWinner();
 						} else{
 							iSquare.openHere();
 							// 记录失误数
+							gameStart.thisGame.getInfoArea().appendText("玩家" + gameStart.thisGame.getThisPlayer().playerName
+									+ "标记错误！");
 							gameStart.thisGame.getThisPlayer().minusScore();
 							gameStart.thisGame.getThisPlayer().addMistake();
 							gameStart.thisGame.getThisScoreText().setText("" + gameStart.thisGame.getThisPlayer().getScore());
 							gameStart.thisGame.getThisMistakeText().setText("" + gameStart.thisGame.getThisPlayer().getMistake());
+							gameStart.thisGame.judgeWinner();
 						}
 						break;
 					}
 					
-					if(iSquare.getStatus().equals(PreStatus.FLAG)){
-						gameStart.thisGame.count();
-						System.out.printf("按钮%d被右键单击,位置(%d,%d)\n", iSquare.getNumId(), iSquare.position.getX(),
-								iSquare.position.getY());
-						iSquare.setStatus(PreStatus.CLOSE);
-						break;
-					}
+					// 普通规则部分之去除旗子
+//					if(iSquare.getStatus().equals(PreStatus.FLAG)){
+//						gameStart.thisGame.count();
+//						System.out.printf("按钮%d被右键单击,位置(%d,%d)\n", iSquare.getNumId(), iSquare.position.getX(),
+//								iSquare.position.getY());
+//						iSquare.setStatus(PreStatus.CLOSE);
+//						break;
+//					}
+					
 					break;
 			}
 			
