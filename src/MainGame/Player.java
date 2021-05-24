@@ -3,7 +3,9 @@ package MainGame;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.value.ObservableValue;
 
-public class Player{
+import java.io.Serializable;
+
+public class Player implements Serializable{
 	public String playerName;
 	private int score = 0;
 	private int mistake = 0;

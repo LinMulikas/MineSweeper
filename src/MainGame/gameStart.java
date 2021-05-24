@@ -26,7 +26,6 @@ public class gameStart extends Application{
 	public void start(Stage primaryStage){
 		
 		thisGame = new Game(Game.GAMEMODE.PRIMARY, Scheme.B);
-		
 		thisGame.stage = primaryStage;
 		// 把初始界面加入Map
 		thisGame.mapStages.put("primaryStage", primaryStage);

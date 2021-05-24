@@ -219,12 +219,12 @@ public class Square extends Block{
 			for(int i = 0; i < gameStart.thisGame.getWidth(); i++){
 				System.out.printf("%d ", gameStart.thisGame.getInnerArea()[i][j]);
 				if(gameStart.thisGame.getInnerArea()[i][j] == 9){
-					gameStart.thisGame.getUnOpenBooms().add(Position.positionToId(i + 1, j + 1));
+					gameStart.thisGame.getRecorder().getUnOpenBooms().add(Position.positionToId(i + 1, j + 1));
 				}
 			}
 			System.out.println();
 		}
-		System.out.println(gameStart.thisGame.getUnOpenBooms().toString());
+		System.out.println(gameStart.thisGame.getRecorder().getUnOpenBooms().toString());
 		return true;
 	}
 	
@@ -263,7 +263,7 @@ public class Square extends Block{
 	 *     后台更新 stepList
 	 * </pre>
 	 */
-	public void openHere(){
+	public void openHere(boolean type){
 		int clickID = this.getNumId();
 //		System.out.println(gameStart.thisGame.getCount());
 		//
@@ -305,8 +305,10 @@ public class Square extends Block{
 		
 		// 改变视觉效果
 		// 记录操作(open是强制点击)
-		gameStart.thisGame.getRecorder().getStep().add(clickID);
-		System.out.printf("id:%d 被打开\n", clickID);
+		if(type){
+			gameStart.thisGame.getRecorder().getStep().add(clickID);
+		}
+//		System.out.printf("id:%d 被打开\n", clickID);
 		// 级联扫雷
 		if(gameStart.thisGame.getSweepType().equals(sweepType.CONTINOUS)){
 			if(this.getStatus().equals(PreStatus.SAFE)){
@@ -334,7 +336,7 @@ public class Square extends Block{
 					e1.printStackTrace();
 				}
 				
-				gameStart.thisGame.getABlock(x - 1, y).openHere();
+				gameStart.thisGame.getABlock(x - 1, y).openHere(true);
 				// 顺便如果是SAFE，进行sweep级联
 				if(gameStart.thisGame.getABlock(x - 1, y).getStatus().equals(PreStatus.SAFE)){
 					gameStart.thisGame.getABlock(x - 1, y).sweep();
@@ -353,7 +355,7 @@ public class Square extends Block{
 					//捕获异常
 					e1.printStackTrace();
 				}
-				gameStart.thisGame.getABlock(x + 1, y).openHere();
+				gameStart.thisGame.getABlock(x + 1, y).openHere(true);
 				// 顺便如果是SAFE，进行sweep级联
 				if(gameStart.thisGame.getABlock(x + 1, y).getStatus().equals(PreStatus.SAFE)){
 					gameStart.thisGame.getABlock(x + 1, y).sweep();
@@ -372,7 +374,7 @@ public class Square extends Block{
 					//捕获异常
 					e1.printStackTrace();
 				}
-				gameStart.thisGame.getABlock(x, y - 1).openHere();
+				gameStart.thisGame.getABlock(x, y - 1).openHere(true);
 				// 顺便如果是SAFE，进行sweep级联
 				if(gameStart.thisGame.getABlock(x, y - 1).getStatus().equals(PreStatus.SAFE)){
 					gameStart.thisGame.getABlock(x, y - 1).sweep();
@@ -383,7 +385,7 @@ public class Square extends Block{
 			// 检查是否已经开采
 			if(gameStart.thisGame.getABlock(x, y + 1).getStatus().equals(PreStatus.CLOSE)){
 				// 只能自动开采关闭的方块
-				gameStart.thisGame.getABlock(x, y + 1).openHere();
+				gameStart.thisGame.getABlock(x, y + 1).openHere(true);
 				// 顺便如果是SAFE，进行sweep级联
 				if(gameStart.thisGame.getABlock(x, y + 1).getStatus().equals(PreStatus.SAFE)){
 					gameStart.thisGame.getABlock(x, y + 1).sweep();
@@ -402,7 +404,7 @@ public class Square extends Block{
 					//捕获异常
 					e1.printStackTrace();
 				}
-				gameStart.thisGame.getABlock(x - 1, y - 1).openHere();
+				gameStart.thisGame.getABlock(x - 1, y - 1).openHere(true);
 				// 顺便如果是SAFE，进行sweep级联
 				if(gameStart.thisGame.getABlock(x - 1, y - 1).getStatus().equals(PreStatus.SAFE)){
 					gameStart.thisGame.getABlock(x - 1, y - 1).sweep();
@@ -421,7 +423,7 @@ public class Square extends Block{
 					//捕获异常
 					e1.printStackTrace();
 				}
-				gameStart.thisGame.getABlock(x - 1, y + 1).openHere();
+				gameStart.thisGame.getABlock(x - 1, y + 1).openHere(true);
 				// 顺便如果是SAFE，进行sweep级联
 				if(gameStart.thisGame.getABlock(x - 1, y + 1).getStatus().equals(PreStatus.SAFE)){
 					gameStart.thisGame.getABlock(x - 1, y + 1).sweep();
@@ -440,7 +442,7 @@ public class Square extends Block{
 					//捕获异常
 					e1.printStackTrace();
 				}
-				gameStart.thisGame.getABlock(x + 1, y - 1).openHere();
+				gameStart.thisGame.getABlock(x + 1, y - 1).openHere(true);
 				// 顺便如果是SAFE，进行sweep级联
 				if(gameStart.thisGame.getABlock(x + 1, y - 1).getStatus().equals(PreStatus.SAFE)){
 					gameStart.thisGame.getABlock(x + 1, y - 1).sweep();
@@ -459,7 +461,7 @@ public class Square extends Block{
 					//捕获异常
 					e1.printStackTrace();
 				}
-				gameStart.thisGame.getABlock(x + 1, y + 1).openHere();
+				gameStart.thisGame.getABlock(x + 1, y + 1).openHere(true);
 				// 顺便如果是SAFE，进行sweep级联
 				if(gameStart.thisGame.getABlock(x + 1, y + 1).getStatus().equals(PreStatus.SAFE)){
 					gameStart.thisGame.getABlock(x + 1, y + 1).sweep();
@@ -593,15 +595,8 @@ public class Square extends Block{
 					if(iSquare.getStatus().equals(PreStatus.CLOSE)){
 						// 计数
 						gameStart.thisGame.count();
-						// 信息输出
-						gameStart.thisGame.getInfoArea().appendText("\n");
-						gameStart.thisGame.getInfoArea().appendText("\n");
-						gameStart.thisGame.getInfoArea().appendText("第" + gameStart.thisGame.getStepCount() + "步：\n"
-						);
-						gameStart.thisGame.getInfoArea().appendText("玩家" +
-								gameStart.thisGame.getThisPlayer().playerName +
-								"点击了(" + iSquare.position.getX() + "," + iSquare.position.getY() + ").");
-//						gameStart.thisGame.getInfoArea().appendText("ID:" + iSquare.getNumId() + "\n\n");
+						//						gameStart.thisGame.getInfoArea().appendText("ID:" + iSquare.getNumId()
+						//						+ "\n\n");
 //
 						// 首击生成棋盘
 						if(gameStart.thisGame.getStepCount() == 1){
@@ -620,24 +615,29 @@ public class Square extends Block{
 //						}
 						
 						// 扫雷
-						iSquare.openHere();
-						
-						for(int i : gameStart.thisGame.getRecorder().getStep()){
-							System.out.printf("%d ", i);
-						}
-
-//						System.out.println("一击打开了："+gameStart.thisGame.getRecorder().getStep().size());
-//						System.out.println();
-						// 更新记录器
-						// 计数检验
-//						System.out.printf("当前点击了%d次\n", gameStart.thisGame.getStepCount());
-//						System.out.println(gameStart.thisGame.getStepCount());
+						gameStart.thisGame.getRecorder().setInner(gameStart.thisGame.getInnerArea());
+						iSquare.openHere(true);
 						gameStart.thisGame.getRecorder().update();
+						gameStart.thisGame.getRecorder().getOpenedID().add(iSquare.getNumId());
+						
+						// 信息输出
+						gameStart.thisGame.getInfoArea().appendText("\n");
+						gameStart.thisGame.getInfoArea().appendText("\n");
+						gameStart.thisGame.getInfoArea().appendText("第" + gameStart.thisGame.getStepCount() + "步：\n"
+						);
+						gameStart.thisGame.getInfoArea().appendText("玩家" +
+								gameStart.thisGame.getThisPlayer().playerName +
+								"点击了(" + iSquare.position.getX() + "," + iSquare.position.getY() + ").");
+
+//						// 临时检验
+//						for(int i : gameStart.thisGame.getRecorder().getStep()){
+//							System.out.printf("%d ", i);
+//						}
 						
 						// 更新分数
 						// 如果踩雷了
 						if(iSquare.findInnerNumber() == 9){
-							gameStart.thisGame.getUnOpenBooms().remove(gameStart.thisGame.getUnOpenBooms().indexOf(iSquare.getNumId()));
+							gameStart.thisGame.getRecorder().getUnOpenBooms().remove(gameStart.thisGame.getRecorder().getUnOpenBooms().indexOf(iSquare.getNumId()));
 							gameStart.thisGame.getThisPlayer().minusScore();
 							gameStart.thisGame.getThisPlayer().addMistake();
 							gameStart.thisGame.getInfoArea().appendText("\n");
@@ -645,6 +645,7 @@ public class Square extends Block{
 							gameStart.thisGame.getInfoArea().appendText("玩家" + gameStart.thisGame.getThisPlayer().playerName
 									+ "踩中了地雷！");
 							gameStart.thisGame.getThisScoreText().setText("" + gameStart.thisGame.getThisPlayer().getScore());
+							gameStart.thisGame.getThisMistakeText().setText("" + gameStart.thisGame.getThisPlayer().getMistake());
 							gameStart.thisGame.judgeWinner();
 						}
 						// 如果没踩雷
@@ -663,6 +664,10 @@ public class Square extends Block{
 					// 如果是CLOSE的块可以标记
 					if(iSquare.getStatus().equals(PreStatus.CLOSE)){
 						gameStart.thisGame.count();
+						iSquare.openHere(true);
+						gameStart.thisGame.getRecorder().update();
+						gameStart.thisGame.getRecorder().getOpenedID().add(iSquare.getNumId());
+						
 						// 信息输出
 						gameStart.thisGame.getInfoArea().appendText("\n");
 						gameStart.thisGame.getInfoArea().appendText("\n");
@@ -674,7 +679,8 @@ public class Square extends Block{
 //						gameStart.thisGame.getInfoArea().appendText("ID:" + iSquare.getNumId() + "\n");
 						
 						if(gameStart.thisGame.getInnerArea()[iSquare.getX() - 1][iSquare.getY() - 1] == 9){
-							gameStart.thisGame.getUnOpenBooms().remove(gameStart.thisGame.getUnOpenBooms().indexOf(iSquare.getNumId()));
+							iSquare.setStatus(PreStatus.FLAG);
+							gameStart.thisGame.getRecorder().getUnOpenBooms().remove(gameStart.thisGame.getRecorder().getUnOpenBooms().indexOf(iSquare.getNumId()));
 							gameStart.thisGame.getInfoArea().appendText("玩家" + gameStart.thisGame.getThisPlayer().playerName
 									+ "标记正确！");
 							gameStart.thisGame.getThisPlayer().addScore();
@@ -683,7 +689,6 @@ public class Square extends Block{
 							iSquare.setStatus(PreStatus.FLAG);
 							gameStart.thisGame.judgeWinner();
 						} else{
-							iSquare.openHere();
 							// 记录失误数
 							gameStart.thisGame.getInfoArea().appendText("玩家" + gameStart.thisGame.getThisPlayer().playerName
 									+ "标记错误！");

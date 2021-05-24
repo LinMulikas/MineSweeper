@@ -13,7 +13,10 @@ import javafx.scene.text.Font;
 import javafx.scene.text.Text;
 import javafx.stage.Stage;
 
+import java.io.File;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.function.UnaryOperator;
 
@@ -31,7 +34,57 @@ public class myScenes{
 	public static Scene Launcher;
 	// Winner
 	public static Scene Winner;
+	// GameLoader
+	public static Scene LoadGame;
 	
+	// GameLoader 定位
+	static{
+		// 将要加入的文件列表
+		List<File> savesFiles = new ArrayList<File>();
+		
+		Map<String, File> saves = new HashMap<String, File>();
+		
+		String rootPath = new String("L:\\SUSTech\\CODE\\ProjectVersion\\Project\\MineSweeper\\src\\Saves");
+		
+		File rootFile = new File(rootPath);
+		
+		File[] files = rootFile.listFiles();// 获取目录下的所有文件或文件夹
+		
+		if(files != null){
+			for(File ifile : files){
+				savesFiles.add(ifile);
+				saves.put(ifile.getName(), ifile);
+			}
+		}
+		// 将目标文件夹下的文件加入到文件列表
+		for(File f1 : savesFiles){
+			System.out.println(f1.getName());
+		}
+		
+		TreeItem<File> treeRoot = new TreeItem<File>(rootFile);
+		
+		for(File file : savesFiles){
+			TreeItem<File> item = new TreeItem<>(file);
+			treeRoot.getChildren().add(item);
+		}
+		
+		treeRoot.setExpanded(true);
+		
+		TreeView<File> fileTreeView = new TreeView<File>(treeRoot);
+		fileTreeView.setOnMouseClicked(event -> {
+			if(event.getClickCount() == 2){
+				TreeItem<File> item = fileTreeView.getSelectionModel().getSelectedItem();
+				gameStart.thisGame.loadGame(item.getValue());
+				
+			}
+		});
+		
+		LoadGame = new Scene(fileTreeView);
+		gameStart.thisGame.mapScenes.put("LoadGame", LoadGame);
+		
+	}
+	
+	// Winner 定位
 	static{
 		FlowPane flWinner = new FlowPane();
 		flWinner.setPrefSize(1200, 800);
@@ -391,7 +444,7 @@ public class myScenes{
 		Button btnGameStart = new Button("开始游戏");
 		btnGameStart.setOnAction(event -> {
 			// 游戏初始化内容检验
-			System.out.println("玩家数量：" + gameStart.thisGame.getRecorder().getPlayerNumber());
+//			System.out.println("玩家数量：" + gameStart.thisGame.getRecorder().getPlayerNumber());
 			
 			if(btnSelf.isSelected()){
 				if(!gameStart.thisGame.getGameMode().equals(Game.GAMEMODE.SELF)){
@@ -435,6 +488,10 @@ public class myScenes{
 				gameStart.thisGame.getRecorder().setStepsChance((int) sliderSteps.getValue());
 			}
 			createGameScene();
+			
+			gameStart.thisGame.getRecorder().setWidth(gameStart.thisGame.getWidth());
+			gameStart.thisGame.getRecorder().setHeight(gameStart.thisGame.getHeight());
+			
 			primaryStage.setTitle(gameStart.thisGame.getName());
 			primaryStage.setScene(gameStart.thisGame.mapScenes.get("GameScene"));
 		});
@@ -497,12 +554,14 @@ public class myScenes{
 		});
 		
 		// 按钮2：新建游戏
-		Button btn2 = new Button("加载游戏");
+		Button btn2 = new Button("加载存档");
 		btn2.setPrefSize(200, 80);
 		// 绑定基础功能
 		btn2.setOnAction(event -> {
-			myScenes.primaryStage.setScene(myScenes.SettingScene);
-			myScenes.primaryStage.setTitle("游戏设置");
+			myScenes.primaryStage.setWidth(1200);
+			myScenes.primaryStage.setWidth(800);
+			myScenes.primaryStage.setScene(myScenes.LoadGame);
+			myScenes.primaryStage.setTitle("存档浏览");
 		});
 		
 		Button btn3 = new Button("游戏测试");
@@ -594,6 +653,7 @@ public class myScenes{
 		
 		// 游戏区域 - 雷区面板
 		GridPane BoomsPane = myScenes.createBoomsPane(width, height);
+		gameStart.thisGame.setGridBooms(BoomsPane);
 		// 游戏区域 - END
 		
 		// 控制区域
@@ -612,12 +672,12 @@ public class myScenes{
 		
 		Button btnSave = new Button("Save Game");
 		btnSave.setOnAction(event -> {
-			gameStart.thisGame.saveGame(gameStart.thisGame.getName());
+			Game.createSave(gameStart.thisGame.getName());
 		});
 		
 		btnSave.setOnAction(event -> {
 			System.out.println(gameStart.thisGame.getRecorder().toString());
-			gameStart.thisGame.saveGame(gameStart.thisGame.getName());
+			Game.createSave(gameStart.thisGame.getName());
 		});
 		
 		// 菜单栏、游戏区域、控制区域加入到游戏面板
@@ -704,6 +764,7 @@ public class myScenes{
 		return gameStart.thisGame.mapScenes.get("GameScene");
 	}
 	
+	
 	/**
 	 * 搭建游戏雷区场景，并把场景按钮数组关联到 thisGame.BlockArea
 	 *
@@ -728,4 +789,26 @@ public class myScenes{
 //		gameStart.thisGame.setBoomsNumber(10);
 		return boomsPane;
 	}
+	
+	public static GridPane createBoomsPane(Game.Recorder recorder){
+		int width = recorder.getWidth();
+		int height = recorder.getHeight();
+		
+		GridPane boomsPane = new GridPane();
+		
+		Square[] Blocks = null;
+		Blocks = new Square[width*height];
+		for(int i = 0; i < width*height; i++){
+			Blocks[i] = new Square(i + 1);
+//			System.out.printf("以%s创建了block\n", gameStart.thisGame.getScheme().toString());
+			boomsPane.add(Blocks[i], (i)%width, (i)/width);
+		}
+		
+		gameStart.thisGame.setBlocks(Blocks);
+		gameStart.thisGame.setBlocksScheme(gameStart.thisGame.getScheme());
+//		gameStart.thisGame.setBlocks();
+//		gameStart.thisGame.setBoomsNumber(10);
+		return boomsPane;
+	}
+	
 }

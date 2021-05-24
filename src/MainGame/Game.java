@@ -6,6 +6,7 @@ import GameControl.Square;
 import Resource.Scheme.Scheme;
 import javafx.scene.Scene;
 import javafx.scene.control.TextArea;
+import javafx.scene.layout.GridPane;
 import javafx.scene.text.Text;
 import javafx.stage.Stage;
 
@@ -13,6 +14,9 @@ import java.io.*;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
+
+import static GameControl.myScenes.createGameScene;
+import static GameControl.myScenes.primaryStage;
 
 public class Game{
 	/**
@@ -25,6 +29,7 @@ public class Game{
 	public Map<String, Scene> mapScenes = new HashMap<>();
 	private Square.sweepType sweepType = Square.sweepType.CONTINOUS;
 	// Node
+	private GridPane gridBooms = null;
 	// 计分板
 	private Text scoreA = null;
 	private Text scoreB = null;
@@ -37,6 +42,7 @@ public class Game{
 	
 	// Scheme
 	private Scheme scheme;
+	
 	/**
 	 * 游戏核心属性
 	 */
@@ -44,7 +50,7 @@ public class Game{
 	private String GameName;
 	private int BoomsNumber;
 	private int MaxBoomsNumber;
-	private ArrayList<Integer> unOpenBooms = new ArrayList();
+	
 	private Player thisPlayer = null;
 	// 游戏中的按钮对象
 	private Square[] Blocks = null;
@@ -87,32 +93,57 @@ public class Game{
 		this.scheme = iScheme;
 	}
 	
-	public void loadGame(){
-	
+	public void loadGame(File file){
+		Recorder theRecord = loadSave(file);
+		this.setRecorder(theRecord);
+		
+		this.setWidth(this.recorder.width);
+		this.setHeight(this.recorder.height);
+		this.setInnerArea(this.recorder.inner);
+		this.setStepCount(this.recorder.getStepCount() - 1);
+		this.count();
+		
+		createGameScene();
+		
+		for(int i : recorder.openedID){
+			this.getBlocks()[i - 1].openHere(false);
+		}
+		
+		this.getScoreA().setText("" + recorder.players[0].getScore());
+		this.getMistakeA().setText("" + recorder.players[0].getMistake());
+		this.getScoreB().setText("" + recorder.players[1].getScore());
+		this.getMistakeB().setText("" + recorder.players[1].getMistake());
+		
+		primaryStage.setTitle(gameStart.thisGame.getName());
+		primaryStage.setScene(gameStart.thisGame.mapScenes.get("GameScene"));
 	}
 	
-	public void saveGame(String saveName){
+	public static void createSave(String saveName){
+		// 存档覆盖有问题
 		ObjectOutputStream oos = null;
-		File file = new File("L:\\SUSTC\\Saves", saveName + ".txt");
-		
+		String path = "L:\\SUSTech\\CODE\\ProjectVersion\\Project\\MineSweeper\\src\\Saves";
+		// 已经存在的文件读取有问题
+		File file = new File(path, saveName + ".txt");
+		if(file.exists()){
+			System.out.println("exist");
+			file.delete();
+		}
 		try{
 			file.createNewFile();// 创建文件
+			System.out.println("创建文件成功");
 		}
 		catch(IOException e1){
+			System.out.println("创建文件失败");
 		}
 		
 		try{
 			oos = new ObjectOutputStream(
 					new FileOutputStream(file));
-			oos.writeObject(gameStart.thisGame.getRecorder().getStepList());
-			for(ArrayList<Integer> list : gameStart.thisGame.getRecorder().getStepList()){
-
-//				System.out.println((gameStart.thisGame.getRecorder().getStepList().indexOf(list) + 1) + ":" + list
-//				.toString());
-			}
+			oos.writeObject(gameStart.thisGame.getRecorder());
 		}
 		catch(IOException e){
 			e.printStackTrace();
+			System.out.println("写入文件失败");
 		}
 		finally{
 			try{
@@ -120,8 +151,33 @@ public class Game{
 			}
 			catch(IOException e){
 				e.printStackTrace();
+				System.out.println("oos关闭失败");
 			}
 		}
+	}
+	
+	public static Recorder loadSave(File file){
+		ObjectInputStream ois = null;
+		try{
+			ois = new ObjectInputStream(new FileInputStream(file));
+			// 数据的读取。每一次读取都会把相应的游标往下移动一位
+			// 在输入流中读取对象
+			Recorder newRecorder = (Recorder) ois.readObject();
+			// 临时检测
+//			System.out.println(newRecorder.getPlayerNumber());
+			return newRecorder;
+		}
+		catch(Exception e){
+			System.out.println(e.getMessage() + "\n读取出错!");
+		}
+		finally{
+			try{
+				ois.close();// 关闭输入流
+			}
+			catch(IOException e){
+			}
+		}
+		return null;
 	}
 	
 	public String getName(){
@@ -158,6 +214,8 @@ public class Game{
 	
 	public void count(){
 		this.stepCount++;
+		this.recorder.setStepCount(this.stepCount);
+		
 		if(this.recorder.playerNumber == 1){
 			thisPlayer = recorder.players[0];
 		}
@@ -291,6 +349,7 @@ public class Game{
 				break;
 			case SELF:
 				this.GameMode = GAMEMODE.SELF;
+				break;
 		}
 	}
 	
@@ -353,7 +412,7 @@ public class Game{
 	// 游戏胜负判定
 	public void judgeWinner(){
 		if(recorder.playerNumber == 1){
-			if(unOpenBooms.size() == 0){
+			if(recorder.unOpenBooms.size() == 0){
 				// 单人模式全开雷，玩家A获胜
 				txtWinner.setText(thisPlayer.playerName + "获胜！");
 				gameStart.thisGame.mapStages.get("primaryStage").setScene(gameStart.thisGame.mapScenes.get("Winner"));
@@ -363,7 +422,7 @@ public class Game{
 		if(recorder.playerNumber == 2){
 			int distance = Math.abs(recorder.players[0].getScore() - recorder.players[1].getScore());
 			// case1:
-			if(distance > unOpenBooms.size()){
+			if(distance > recorder.unOpenBooms.size()){
 				if(recorder.players[0].getScore() > recorder.players[1].getScore()){
 					txtWinner.setText(recorder.players[0].playerName + "获胜！");
 					gameStart.thisGame.mapStages.get("primaryStage").setScene(gameStart.thisGame.mapScenes.get("Winner"
@@ -376,7 +435,7 @@ public class Game{
 					
 				}
 			}
-			if(unOpenBooms.size() == 0){
+			if(recorder.unOpenBooms.size() == 0){
 				if(recorder.players[0].getScore() > recorder.players[1].getScore()){
 					txtWinner.setText(recorder.players[0].playerName + "获胜！");
 					gameStart.thisGame.mapStages.get("primaryStage").setScene(gameStart.thisGame.mapScenes.get("Winner"
@@ -418,22 +477,16 @@ public class Game{
 		this.infoArea = infoArea;
 	}
 	
-	public ArrayList<Integer> getUnOpenBooms(){
-		return unOpenBooms;
-	}
-	
-	public void setUnOpenBooms(ArrayList<Integer> unOpenBooms){
-		this.unOpenBooms = unOpenBooms;
-	}
 	
 	public void cheatMode(Boolean bool){
 		if(bool){
-			for(int i : unOpenBooms){
-				this.getBlocks()[i - 1].openHere();
+			for(int i : recorder.unOpenBooms){
+				this.getBlocks()[i - 1].openHere(false);
 			}
 		}
+		
 		if(!bool){
-			for(int i : unOpenBooms){
+			for(int i : recorder.unOpenBooms){
 				this.getBlocks()[i - 1].setStatus(Block.PreStatus.CLOSE);
 			}
 		}
@@ -447,6 +500,14 @@ public class Game{
 		this.txtWinner = txtWinner;
 	}
 	
+	public GridPane getGridBooms(){
+		return gridBooms;
+	}
+	
+	public void setGridBooms(GridPane gridBooms){
+		this.gridBooms = gridBooms;
+	}
+	
 	public enum GAMEMODE{
 		PRIMARY,
 		MIDDLE,
@@ -458,6 +519,16 @@ public class Game{
 		private Player[] players = {new Player("A"), new Player("B"), new Player("C")};
 		private int playerNumber = 1;
 		private int stepsChance = 0;
+		private int width, height;
+		private int stepCount = 0;
+		
+		private static final long serialVersionUID = 1L;
+		
+		private ArrayList<Integer> openedID = new ArrayList<Integer>();
+		private ArrayList<Integer> unOpenBooms = new ArrayList<Integer>();
+		private ArrayList<Integer> allBooms = new ArrayList<Integer>();
+		private int[][] inner = null;
+		
 		private ArrayList<ArrayList<Integer>> stepList = new ArrayList<>();
 		private ArrayList<Integer> step = new ArrayList<>();
 		
@@ -517,6 +588,62 @@ public class Game{
 		
 		public void setPlayers(Player[] players){
 			this.players = players;
+		}
+		
+		public ArrayList<Integer> getUnOpenBooms(){
+			return unOpenBooms;
+		}
+		
+		public void setUnOpenBooms(ArrayList<Integer> unOpenBooms){
+			this.unOpenBooms = unOpenBooms;
+		}
+		
+		public ArrayList<Integer> getAllBooms(){
+			return allBooms;
+		}
+		
+		public void setAllBooms(ArrayList<Integer> allBooms){
+			this.allBooms = allBooms;
+		}
+		
+		public int getWidth(){
+			return width;
+		}
+		
+		public void setWidth(int width){
+			this.width = width;
+		}
+		
+		public int getHeight(){
+			return height;
+		}
+		
+		public void setHeight(int height){
+			this.height = height;
+		}
+		
+		public ArrayList<Integer> getOpenedID(){
+			return openedID;
+		}
+		
+		public void setOpenedID(ArrayList<Integer> openedID){
+			this.openedID = openedID;
+		}
+		
+		public int[][] getInner(){
+			return inner;
+		}
+		
+		public void setInner(int[][] inner){
+			this.inner = inner;
+		}
+		
+		public int getStepCount(){
+			return stepCount;
+		}
+		
+		public void setStepCount(int stepCount){
+			this.stepCount = stepCount;
 		}
 	}
 	
