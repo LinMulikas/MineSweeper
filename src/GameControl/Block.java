@@ -1,26 +1,13 @@
 package GameControl;
 
-import Settings.SHAPE;
 import javafx.scene.control.Button;
 
-abstract class Block extends Button{
-	static SHAPE blockShape;
+public abstract class Block extends Button{
 	private int XIndex;
 	private int YIndex;
 	private int numID;
-	private BlockStatus iStatus;
 	
-	abstract int idToX(int id);
-	
-	abstract int idToY(int id);
-	
-	public SHAPE getBlockShape(){
-		return blockShape;
-	}
-	
-	public void setBlockShape(SHAPE blockShape){
-		blockShape = blockShape;
-	}
+	private int PreNumber;
 	
 	public int getXIndex(){
 		return XIndex;
@@ -38,7 +25,7 @@ abstract class Block extends Button{
 		this.YIndex = YIndex;
 	}
 	
-	public int getNumIDId(){
+	public int getNumId(){
 		return numID;
 	}
 	
@@ -46,13 +33,21 @@ abstract class Block extends Button{
 		this.numID = numID;
 	}
 	
-	abstract boolean sweep(Position P);
+	abstract void setStatus(PreStatus status);
 	
-	enum BlockStatus{
-		OPEN,
-		UNOPEN,
+	public enum PreStatus{
+		CLOSE,
 		FLAG,
-		BOOM;
+		BOOM,
+		SAFE,
+		NUM1,
+		NUM2,
+		NUM3,
+		NUM4,
+		NUM5,
+		NUM6,
+		NUM7,
+		NUM8,
 	}
 }
 
