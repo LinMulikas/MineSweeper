@@ -24,7 +24,6 @@ public class gameStart extends Application{
 	
 	@Override
 	public void start(Stage primaryStage){
-		
 		thisGame = new Game(Game.GAMEMODE.PRIMARY, Scheme.B);
 		thisGame.stage = primaryStage;
 		// 把初始界面加入Map

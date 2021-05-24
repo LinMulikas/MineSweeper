@@ -71,6 +71,8 @@ public class myScenes{
 		treeRoot.setExpanded(true);
 		
 		TreeView<File> fileTreeView = new TreeView<File>(treeRoot);
+		fileTreeView.setShowRoot(false);
+		
 		fileTreeView.setOnMouseClicked(event -> {
 			if(event.getClickCount() == 2){
 				TreeItem<File> item = fileTreeView.getSelectionModel().getSelectedItem();
@@ -79,9 +81,17 @@ public class myScenes{
 			}
 		});
 		
-		LoadGame = new Scene(fileTreeView);
-		gameStart.thisGame.mapScenes.put("LoadGame", LoadGame);
+		VBox vboxLoadGame = new VBox();
+		Button btnLoadToMain = new Button("返回菜单");
+		btnLoadToMain.setOnAction(event -> {
+			primaryStage.setTitle("主菜单");
+			primaryStage.setScene(Launcher);
+		});
+		vboxLoadGame.getChildren().addAll(fileTreeView, btnLoadToMain);
+		vboxLoadGame.setPrefWidth(800);
 		
+		LoadGame = new Scene(vboxLoadGame);
+		gameStart.thisGame.mapScenes.put("LoadGame", LoadGame);
 	}
 	
 	// Winner 定位
@@ -101,6 +111,7 @@ public class myScenes{
 		
 		Button btnMain = new Button("返回菜单");
 		btnMain.setOnAction(event -> {
+			primaryStage.setTitle("主菜单");
 			primaryStage.setScene(Launcher);
 		});
 		btnMain.setPrefSize(120, 40);
@@ -115,6 +126,7 @@ public class myScenes{
 	
 	/**
 	 * SettingScene 细节
+	 * SettingScene 定位
 	 */
 	static{
 		/**
@@ -440,7 +452,6 @@ public class myScenes{
 		btnTwoPlayer.setToggleGroup(groupPlayers);
 		
 		// 开始游戏按钮和返回菜单按钮
-		VBox vboxSceneControl = new VBox();
 		Button btnGameStart = new Button("开始游戏");
 		btnGameStart.setOnAction(event -> {
 			// 游戏初始化内容检验
@@ -500,21 +511,23 @@ public class myScenes{
 		btnBackMain.setOnAction(event -> {
 			gameStart.thisGame.stage.setScene(Launcher);
 		});
-		vboxSceneControl.setSpacing(40);
-		vboxSceneControl.getChildren().addAll(btnGameStart, btnBackMain);
-		vboxSceneControl.setAlignment(Pos.CENTER);
+		
+		HBox hboxSceneControl = new HBox();
+		hboxSceneControl.setSpacing(40);
+		hboxSceneControl.getChildren().addAll(btnGameStart, btnBackMain);
 		
 		// 设置的总面板
-		FlowPane FLSetting = new FlowPane();
+		VBox vboxTotalSetting = new VBox();
+		
 		VBox vboxSetting = new VBox();
 		vboxSetting.setSpacing(40);
 		vboxSetting.getChildren().addAll(vboxGameName, vboxScheme, vboxPlayer, FLGameMode);
 		
-		FLSetting.setVgap(60);
-		FLSetting.setOrientation(Orientation.VERTICAL);
+		vboxTotalSetting.getChildren().addAll(vboxSetting, hboxSceneControl);
+
+//		FLSetting.setPrefSize(1200, 800);
 		
-		FLSetting.getChildren().addAll(vboxSetting, vboxSceneControl);
-		SettingScene = new Scene(FLSetting);
+		SettingScene = new Scene(vboxTotalSetting);
 		gameStart.thisGame.mapScenes.put("SettingScene", SettingScene);
 	}
 	
@@ -545,7 +558,7 @@ public class myScenes{
 		
 		// Launcher界面的基础功能
 		
-		// 按钮1：开始默认游戏
+		// 按钮1：新建游戏
 		Button btn1 = new Button("新建游戏");
 		btn1.setPrefSize(200, 80);
 		btn1.setOnAction(event -> {
@@ -558,8 +571,6 @@ public class myScenes{
 		btn2.setPrefSize(200, 80);
 		// 绑定基础功能
 		btn2.setOnAction(event -> {
-			myScenes.primaryStage.setWidth(1200);
-			myScenes.primaryStage.setWidth(800);
 			myScenes.primaryStage.setScene(myScenes.LoadGame);
 			myScenes.primaryStage.setTitle("存档浏览");
 		});
@@ -591,22 +602,32 @@ public class myScenes{
 		MenuBar menuBarGame = new MenuBar();
 		menuBarGame.setPrefSize(gameStart.thisGame.getWidth(), 20);
 		// 1. "Game" 菜单
-		Menu menuGame = new Menu("Game");
+		Menu menuGame = new Menu("游戏");
 		// 1.1 NewGame item
-		MenuItem itemNewGame = new MenuItem("New Game");
+		MenuItem itemNewGame = new MenuItem("返回菜单");
+		itemNewGame.setOnAction(event -> {
+			primaryStage.setScene(Launcher);
+		});
 		// 绑定功能
 		
-		// 绑定到 Game
-		menuGame.getItems().add(itemNewGame);
-		
 		// 1.2 ReStart 选项
-		MenuItem itemRestart = new MenuItem("Restart");
+		MenuItem itemRestart = new MenuItem("重新开始");
+		itemRestart.setOnAction(event -> {
+			gameStart.thisGame.reStart();
+		});
+		
+		// 1.3 Save 选项
+		MenuItem itemSave = new MenuItem("保存游戏");
+		itemSave.setOnAction(event -> {
+			System.out.println(gameStart.thisGame.getRecorder().toString());
+			Game.createSave(gameStart.thisGame.getName());
+		});
 		
 		// 绑定到 Game
-		menuGame.getItems().add(itemRestart);
+		menuGame.getItems().addAll(itemNewGame, itemRestart, itemSave);
 		
 		// 2. "Scheme" 菜单
-		Menu menuScheme = new Menu("Scheme");
+		Menu menuScheme = new Menu("主题");
 		
 		ToggleGroup schemeChoose = new ToggleGroup();
 		RadioMenuItem itemA = new RadioMenuItem("Scheme A");
@@ -632,7 +653,7 @@ public class myScenes{
 		menuScheme.getItems().addAll(itemA, itemB, itemC);
 		
 		// 3. "GUI" 菜单
-		Menu menuGUI = new Menu("GUI");
+		Menu menuGUI = new Menu("图形界面选项");
 		
 		menuBarGame.getMenus().addAll(menuGame, menuScheme, menuGUI);
 		
@@ -671,9 +692,6 @@ public class myScenes{
 		});
 		
 		Button btnSave = new Button("Save Game");
-		btnSave.setOnAction(event -> {
-			Game.createSave(gameStart.thisGame.getName());
-		});
 		
 		btnSave.setOnAction(event -> {
 			System.out.println(gameStart.thisGame.getRecorder().toString());
@@ -763,7 +781,6 @@ public class myScenes{
 		gameStart.thisGame.mapScenes.put("GameScene", GameScene);
 		return gameStart.thisGame.mapScenes.get("GameScene");
 	}
-	
 	
 	/**
 	 * 搭建游戏雷区场景，并把场景按钮数组关联到 thisGame.BlockArea

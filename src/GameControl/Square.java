@@ -547,7 +547,6 @@ public class Square extends Block{
 	public int findInnerNumber(){
 		int i = this.getX() - 1;
 		int j = this.getY() - 1;
-		
 		return gameStart.thisGame.getInnerArea()[i][j];
 	}
 	
@@ -598,8 +597,7 @@ public class Square extends Block{
 						//						gameStart.thisGame.getInfoArea().appendText("ID:" + iSquare.getNumId()
 						//						+ "\n\n");
 //
-						// 首击生成棋盘
-						if(gameStart.thisGame.getStepCount() == 1){
+						if((gameStart.thisGame.getStepCount() == 1)){
 							boolean judge = false;
 							while(!judge){
 								judge = Square.createInner(iSquare.getX(), iSquare.getY());

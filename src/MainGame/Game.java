@@ -93,31 +93,6 @@ public class Game{
 		this.scheme = iScheme;
 	}
 	
-	public void loadGame(File file){
-		Recorder theRecord = loadSave(file);
-		this.setRecorder(theRecord);
-		
-		this.setWidth(this.recorder.width);
-		this.setHeight(this.recorder.height);
-		this.setInnerArea(this.recorder.inner);
-		this.setStepCount(this.recorder.getStepCount() - 1);
-		this.count();
-		
-		createGameScene();
-		
-		for(int i : recorder.openedID){
-			this.getBlocks()[i - 1].openHere(false);
-		}
-		
-		this.getScoreA().setText("" + recorder.players[0].getScore());
-		this.getMistakeA().setText("" + recorder.players[0].getMistake());
-		this.getScoreB().setText("" + recorder.players[1].getScore());
-		this.getMistakeB().setText("" + recorder.players[1].getMistake());
-		
-		primaryStage.setTitle(gameStart.thisGame.getName());
-		primaryStage.setScene(gameStart.thisGame.mapScenes.get("GameScene"));
-	}
-	
 	public static void createSave(String saveName){
 		// 存档覆盖有问题
 		ObjectOutputStream oos = null;
@@ -126,20 +101,29 @@ public class Game{
 		File file = new File(path, saveName + ".txt");
 		if(file.exists()){
 			System.out.println("exist");
-			file.delete();
+			if(file.delete()){
+				System.out.println("删除成功");
+			} else{
+				System.out.println("删除失败");
+			}
 		}
 		try{
-			file.createNewFile();// 创建文件
-			System.out.println("创建文件成功");
+			if(file.createNewFile()){
+				System.out.println("创建文件成功");
+			} else{
+				System.out.println("创建文件失败");
+			}
 		}
 		catch(IOException e1){
-			System.out.println("创建文件失败");
+			System.out.println("创建文件时出错");
 		}
 		
 		try{
 			oos = new ObjectOutputStream(
 					new FileOutputStream(file));
+			System.out.println(gameStart.thisGame.getRecorder().getStepCount());
 			oos.writeObject(gameStart.thisGame.getRecorder());
+			System.out.println("写入成功");
 		}
 		catch(IOException e){
 			e.printStackTrace();
@@ -165,6 +149,7 @@ public class Game{
 			Recorder newRecorder = (Recorder) ois.readObject();
 			// 临时检测
 //			System.out.println(newRecorder.getPlayerNumber());
+			System.out.println(newRecorder.getStepCount());
 			return newRecorder;
 		}
 		catch(Exception e){
@@ -178,6 +163,33 @@ public class Game{
 			}
 		}
 		return null;
+	}
+	
+	public void loadGame(File file){
+		Recorder theRecord = loadSave(file);
+		this.setRecorder(theRecord);
+		
+		this.setName(file.getName().substring(0, file.getName().length() - 4));
+		
+		this.setWidth(this.recorder.width);
+		this.setHeight(this.recorder.height);
+		this.setInnerArea(this.recorder.inner);
+		this.setStepCount(this.recorder.getStepCount() - 1);
+		this.count();
+		
+		createGameScene();
+		
+		for(int i : recorder.openedID){
+			this.getBlocks()[i - 1].openHere(false);
+		}
+		
+		this.getScoreA().setText("" + recorder.players[0].getScore());
+		this.getMistakeA().setText("" + recorder.players[0].getMistake());
+		this.getScoreB().setText("" + recorder.players[1].getScore());
+		this.getMistakeB().setText("" + recorder.players[1].getMistake());
+		
+		primaryStage.setTitle(gameStart.thisGame.getName());
+		primaryStage.setScene(gameStart.thisGame.mapScenes.get("GameScene"));
 	}
 	
 	public String getName(){
@@ -210,6 +222,33 @@ public class Game{
 	
 	public void setStepCount(int stepCount){
 		this.stepCount = stepCount;
+	}
+	
+	public void renewTextInfo(){
+		this.getScoreA().setText("" + this.recorder.players[0].getScore());
+		this.getMistakeA().setText("" + this.recorder.players[0].getMistake());
+		this.getScoreB().setText("" + this.recorder.players[1].getScore());
+		this.getMistakeB().setText("" + this.recorder.players[1].getMistake());
+		
+	}
+	
+	public void reStart(){
+		this.recorder.players[0].setScore(0);
+		this.recorder.players[0].setMistake(0);
+		this.recorder.players[1].setScore(0);
+		this.recorder.players[1].setMistake(0);
+		this.recorder.getStepList().clear();
+		this.recorder.getStep().clear();
+		
+		if(this.stepCount != 0){
+			this.setStepCount(0);
+		}
+		
+		this.renewTextInfo();
+		for(Square iSquare : this.getBlocks()){
+			iSquare.setStatus(Block.PreStatus.CLOSE);
+		}
+		
 	}
 	
 	public void count(){
@@ -477,7 +516,6 @@ public class Game{
 		this.infoArea = infoArea;
 	}
 	
-	
 	public void cheatMode(Boolean bool){
 		if(bool){
 			for(int i : recorder.unOpenBooms){
@@ -516,14 +554,12 @@ public class Game{
 	}
 	
 	public static class Recorder implements Serializable{
+		private static final long serialVersionUID = 1L;
 		private Player[] players = {new Player("A"), new Player("B"), new Player("C")};
 		private int playerNumber = 1;
 		private int stepsChance = 0;
 		private int width, height;
 		private int stepCount = 0;
-		
-		private static final long serialVersionUID = 1L;
-		
 		private ArrayList<Integer> openedID = new ArrayList<Integer>();
 		private ArrayList<Integer> unOpenBooms = new ArrayList<Integer>();
 		private ArrayList<Integer> allBooms = new ArrayList<Integer>();
