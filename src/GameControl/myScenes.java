@@ -45,69 +45,45 @@ public class myScenes{
 	
 	// 初始化Rank Scene
 	static{
-		Scene rankScene = createRankScene();
-		gameStart.thisGame.mapScenes.put("Rank", rankScene);
+		createRankScene();
+		Scene rankScene = gameStart.thisGame.mapScenes.get("Rank");
 	}
 	
 	// GameLoader Scene
 	static{
-		// 将要加入的文件列表
-		List<File> savesFiles = new ArrayList<File>();
-		
-		Map<String, File> saves = new HashMap<String, File>();
-		
-		String rootPath = new String("L:\\SUSTech\\CODE\\ProjectVersion\\Project\\MineSweeper\\src\\Saves");
-		
-		File rootFile = new File(rootPath);
-		
-		File[] files = rootFile.listFiles();// 获取目录下的所有文件或文件夹
-		
-		if(files != null){
-			for(File ifile : files){
-				savesFiles.add(ifile);
-				saves.put(ifile.getName(), ifile);
-			}
-		}
-		// 将目标文件夹下的文件加入到文件列表
-		for(File f1 : savesFiles){
-			// 临时检查文件列表读取是否正确
-			System.out.println(f1.getName());
-		}
-		
-		TreeItem<File> treeRoot = new TreeItem<File>(rootFile);
-		
-		for(File file : savesFiles){
-			TreeItem<File> item = new TreeItem<>(file);
-			treeRoot.getChildren().add(item);
-		}
-		
-		treeRoot.setExpanded(true);
-		
-		TreeView<File> fileTreeView = new TreeView<File>(treeRoot);
-		fileTreeView.setShowRoot(false);
-		
-		fileTreeView.setOnMouseClicked(event -> {
-			if(event.getClickCount() == 2){
-				TreeItem<File> item = fileTreeView.getSelectionModel().getSelectedItem();
-				gameStart.thisGame.loadGame(item.getValue());
-			}
-		});
-		
-		VBox vboxLoadGame = new VBox();
-		Button btnLoadToMain = new Button("返回菜单");
-		btnLoadToMain.setOnAction(event -> {
-			primaryStage.setTitle("主菜单");
-			primaryStage.setScene(Launcher);
-		});
-		vboxLoadGame.getChildren().addAll(fileTreeView, btnLoadToMain);
-		vboxLoadGame.setPrefWidth(800);
-		
-		LoadGame = new Scene(vboxLoadGame);
-		gameStart.thisGame.mapScenes.put("LoadGame", LoadGame);
+		createGameLoadScene();
+		LoadGame = gameStart.thisGame.mapScenes.get("LoadGame");
 	}
 	
 	// Winner 定位
 	static{
+		createWinnerScene();
+		Winner = gameStart.thisGame.mapScenes.get("Winner");
+	}
+	
+	static{
+		createSettingScene();
+		SettingScene = gameStart.thisGame.mapScenes.get("SettingScene");
+	}
+	
+	/**
+	 * LoadGameScene
+	 */
+	static{
+		createGameLoadScene();
+		LoadGame = gameStart.thisGame.mapScenes.get("LoadGame");
+	}
+	
+	/**
+	 * LauncherScene 细节
+	 * LauncherScene 定位器
+	 */
+	static{
+		createLauncherScene();
+		Launcher = gameStart.thisGame.mapScenes.get("Launcher");
+	}
+	
+	public static void createWinnerScene(){
 		
 		FlowPane flWinner = new FlowPane();
 		flWinner.setPrefSize(1200, 800);
@@ -135,13 +111,16 @@ public class myScenes{
 		flWinner.getChildren().addAll(txtWinner, btnSave, btnMain);
 		Winner = new Scene(flWinner);
 		gameStart.thisGame.mapScenes.put("Winner", Winner);
+		
 	}
 	
 	/**
 	 * SettingScene 细节
 	 * SettingScene 定位
 	 */
-	static{
+	
+	public static void createSettingScene(){
+		Scene settingScene;
 		/**
 		 * 游戏名称
 		 */
@@ -638,68 +617,14 @@ public class myScenes{
 
 //		FLSetting.setPrefSize(1200, 800);
 		
-		SettingScene = new Scene(vboxTotalSetting);
-		gameStart.thisGame.mapScenes.put("SettingScene", SettingScene);
+		settingScene = new Scene(vboxTotalSetting);
+		if(gameStart.thisGame.mapScenes.getOrDefault("SettingScene", null) != null){
+			gameStart.thisGame.mapScenes.remove("SettingScene");
+		}
+		gameStart.thisGame.mapScenes.put("SettingScene", settingScene);
 	}
 	
-	/**
-	 * LoadGameScene
-	 */
-	static{
-	
-	}
-	
-	/**
-	 * LauncherScene 细节
-	 * LauncherScene 定位器
-	 */
-	static{
-		// Launcher 界面绘制
-		// flowPane 的基础设置
-		// 菜单栏
-		
-		FlowPane flowPane = new FlowPane();
-		flowPane.setOrientation(Orientation.VERTICAL);
-		flowPane.setAlignment(Pos.CENTER);
-		flowPane.setPrefSize(1200, 800);
-		flowPane.setVgap(120);
-		flowPane.setStyle(
-				" -fx-background-image: url(" + "file:src/Resource/Image/Useful/Launcher.jpg" + "); " +
-						" -fx-background-size: 120%;");
-		
-		// Launcher界面的基础功能
-		
-		// 按钮1：新建游戏
-		Button btn1 = new Button("新建游戏");
-		btn1.setPrefSize(200, 80);
-		btn1.setOnAction(event -> {
-			myScenes.primaryStage.setScene(myScenes.SettingScene);
-			myScenes.primaryStage.setTitle("游戏设置");
-		});
-		
-		// 按钮2：新建游戏
-		Button btn2 = new Button("加载存档");
-		btn2.setPrefSize(200, 80);
-		// 绑定基础功能
-		btn2.setOnAction(event -> {
-			myScenes.primaryStage.setScene(myScenes.LoadGame);
-			myScenes.primaryStage.setTitle("存档浏览");
-		});
-		
-		Button btn3 = new Button("排行榜");
-		btn3.setPrefSize(200, 80);
-		btn3.setOnAction(event -> {
-			createRankScene();
-			primaryStage.setTitle("排行榜");
-			primaryStage.setScene(gameStart.thisGame.mapScenes.get("Rank"));
-		});
-		
-		flowPane.getChildren().addAll(btn1, btn2, btn3);
-		myScenes.Launcher = new Scene(flowPane);
-		gameStart.thisGame.mapScenes.put("Launcher", Launcher);
-	}
-	
-	public static Scene createLauncherScene(){
+	public static void createLauncherScene(){
 		
 		// Launcher 界面绘制
 		// flowPane 的基础设置
@@ -721,17 +646,19 @@ public class myScenes{
 		Button btn1 = new Button("新建游戏");
 		btn1.setPrefSize(200, 80);
 		btn1.setOnAction(event -> {
-			myScenes.primaryStage.setScene(myScenes.SettingScene);
+			createSettingScene();
+			myScenes.primaryStage.setScene(gameStart.thisGame.mapScenes.get("SettingScene"));
 			myScenes.primaryStage.setTitle("游戏设置");
 		});
 		
-		// 按钮2：新建游戏
+		// 按钮2：加载游戏
 		Button btn2 = new Button("加载存档");
 		btn2.setPrefSize(200, 80);
 		// 绑定基础功能
 		btn2.setOnAction(event -> {
-			myScenes.primaryStage.setScene(myScenes.LoadGame);
-			myScenes.primaryStage.setTitle("存档浏览");
+			createGameLoadScene();
+			myScenes.primaryStage.setScene(gameStart.thisGame.mapScenes.get("LoadGame"));
+			myScenes.primaryStage.setTitle("加载存档");
 		});
 		
 		Button btn3 = new Button("排行榜");
@@ -744,15 +671,10 @@ public class myScenes{
 		
 		flowPane.getChildren().addAll(btn1, btn2, btn3);
 		Launcher = new Scene(flowPane);
-		if(gameStart.thisGame.mapScenes.getOrDefault("Launcher", null) != null){
-			gameStart.thisGame.mapScenes.remove("Launcher");
-		}
 		gameStart.thisGame.mapScenes.put("Launcher", Launcher);
-		return Launcher;
-		
 	}
 	
-	public static Scene createRankScene(){
+	public static void createRankScene(){
 		TableView tableRank = rankPlayer.tableRank();
 		
 		Label labRank = new Label("玩家排行榜");
@@ -770,15 +692,10 @@ public class myScenes{
 		Scene rankScene = new Scene(vboxRank);
 		
 		// 刷新排行榜
-		if(gameStart.thisGame.mapScenes.getOrDefault("Rank", null) != null){
-			gameStart.thisGame.mapScenes.remove("Rank");
-			gameStart.thisGame.mapScenes.put("Rank", rankScene);
-		}
-		
-		return rankScene;
+		gameStart.thisGame.mapScenes.put("Rank", rankScene);
 	}
 	
-	public static Scene CreateGameLoaderScene(){
+	public static void createGameLoadScene(){
 		Scene GameLoader;
 		// 将要加入的文件列表
 		List<File> savesFiles = new ArrayList<File>();
@@ -833,11 +750,7 @@ public class myScenes{
 		
 		GameLoader = new Scene(vboxLoadGame);
 		
-		if(gameStart.thisGame.mapScenes.getOrDefault("LoadGame", null) != null){
-			gameStart.thisGame.mapScenes.remove("LoadGame");
-		}
 		gameStart.thisGame.mapScenes.put("LoadGame", GameLoader);
-		return GameLoader;
 	}
 	
 	/**
