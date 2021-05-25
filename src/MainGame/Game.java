@@ -3,9 +3,12 @@ package MainGame;
 import GameControl.Block;
 import GameControl.Position;
 import GameControl.Square;
+import GameControl.rankPlayer;
 import Resource.Scheme.Scheme;
 import javafx.scene.Scene;
+import javafx.scene.control.Button;
 import javafx.scene.control.TextArea;
+import javafx.scene.control.TreeView;
 import javafx.scene.layout.GridPane;
 import javafx.scene.text.Text;
 import javafx.stage.Stage;
@@ -81,10 +84,13 @@ public class Game{
 	 * </pre>
 	 */
 	public Game(){
-		this.setGameMode(GAMEMODE.MIDDLE);
+		this.setGameMode(GAMEMODE.PRIMARY);
 		this.sweepType = Square.sweepType.SINGLE;
 		this.scheme = Scheme.B;
 		thisPlayer = recorder.players[0];
+		if(recorder.playerNumber == 2){
+			this.infoArea.appendText("\n现在是" + thisPlayer.playerName + "的回合！");
+		}
 	}
 	
 	public Game(GAMEMODE gamemode, Scheme iScheme){
@@ -149,7 +155,7 @@ public class Game{
 			Recorder newRecorder = (Recorder) ois.readObject();
 			// 临时检测
 //			System.out.println(newRecorder.getPlayerNumber());
-			System.out.println(newRecorder.getStepCount());
+//			System.out.println(newRecorder.getStepCount());
 			return newRecorder;
 		}
 		catch(Exception e){
@@ -163,6 +169,162 @@ public class Game{
 			}
 		}
 		return null;
+	}
+	
+	public static ArrayList<String> loadRank(){
+		//第一步：先获取csv文件的路径，通过BufferedReader类去读该路径中的文件
+		File rankCSV = new File("L:\\SUSTech\\CODE\\ProjectVersion\\Project\\MineSweeper\\src\\Rank\\Rank.txt");
+		ArrayList<String> rankData = new ArrayList<>();
+		
+		try{
+			//第二步：从字符输入流读取文本，缓冲各个字符，从而实现字符、数组和行（文本的行数通过回车符来进行判定）的高效读取。
+			BufferedReader fileReader = new BufferedReader(new FileReader(rankCSV));
+			
+			String lineData = "";
+			//第三步：将文档的下一行数据赋值给lineData，并判断是否为空，若不为空则输出
+			while((lineData = fileReader.readLine()) != null){
+				rankData.add(lineData);
+//				System.out.println(lineData);
+			}
+//			System.out.println(rankData.toString());
+		}
+		catch(FileNotFoundException e){
+			System.out.println("没有找到指定文件");
+		}
+		catch(IOException e){
+			System.out.println("文件读写出错");
+		}
+		return rankData;
+	}
+	
+	public void loadRecord(File file){
+		Recorder theRecord = loadSave(file);
+		this.setRecorder(theRecord);
+		
+		this.setName(file.getName().substring(0, file.getName().length() - 4));
+		this.setWidth(this.recorder.width);
+		this.setHeight(this.recorder.height);
+		
+		this.recorder.stepList.clear();
+		this.recorder.step.clear();
+		
+		this.setStepCount(0);
+		createGameScene();
+		
+		this.setInnerArea(this.recorder.inner);
+		
+		primaryStage.setTitle(gameStart.thisGame.getName());
+		primaryStage.setScene(gameStart.thisGame.mapScenes.get("GameScene"));
+		
+		for(ArrayList<Integer> stepList : recorder.stepList){
+			System.out.println("SSS");
+			for(int i : stepList){
+				System.out.println(i);
+				try{
+					Thread.sleep(100);
+				}
+				catch(InterruptedException e1){
+					//捕获异常
+					e1.printStackTrace();
+				}
+				this.Blocks[i - 1].openHere(false);
+			}
+		}
+		
+	}
+	
+	public void back(){
+		if(stepCount == 0){
+			return;
+		}
+		ArrayList<Integer> lastStep = recorder.stepList.get(recorder.stepList.size() - 1);
+		
+		// 回溯最后一步的方块
+		// proj模式中回溯只有一步
+		int steps = lastStep.size();
+//		System.out.println(steps);
+		int cnt = 0;
+		for(int id : lastStep){
+//			System.out.println(id);
+			if(cnt == steps){
+				break;
+			}
+			if(this.getBlocks()[id - 1].getStatus().equals(Block.PreStatus.BOOM)){
+				this.recorder.openedID.remove(recorder.openedID.size() - 1 - cnt);
+				this.recorder.unOpenBooms.add(id);
+			} else{
+				this.recorder.openedID.remove(recorder.openedID.size() - 1 - cnt);
+			}
+			this.getBlocks()[id - 1].setStatus(Block.PreStatus.CLOSE);
+			cnt++;
+		}
+		
+		// 回溯最后一步的分数
+		switch(this.recorder.scoreList.get(this.recorder.scoreList.size() - 1)){
+			case 1:
+				thisPlayer.minusScore();
+				break;
+			case 2:
+				thisPlayer.minusMistake();
+				break;
+			case -1:
+				thisPlayer.addScore();
+				break;
+		}
+		
+		// 刷新信息栏
+		int lastIndex = recorder.stepCount - 1;
+		this.renewTextInfo();
+		// 刷新信息提示
+		this.infoArea.appendText("\n玩家" + thisPlayer.playerName + "撤回了一步！");
+		
+		// 刷新recorder
+		this.recorder.scoreList.remove(lastIndex);
+		this.recorder.stepList.remove(lastIndex);
+		this.recorder.step.clear();
+		
+		// 刷新步数
+		this.setStepCount(this.stepCount - 2);
+		this.count();
+		
+	}
+	
+	public void saveScore(){
+		File rankCSV = new File("L:\\SUSTech\\CODE\\ProjectVersion\\Project\\MineSweeper\\src\\Rank\\Rank.txt");
+		
+		try{
+			BufferedWriter writer = new BufferedWriter(
+					new OutputStreamWriter(
+							new FileOutputStream(rankCSV, true), "UTF-8"));
+			if(this.recorder.playerNumber == 1){
+				writer.write(this.recorder.players[0].playerName + "");
+				writer.write("\n");
+				writer.write(this.recorder.players[0].getScore() + "");
+				writer.write("\n");
+				writer.write(this.recorder.players[0].getMistake() + "");
+				writer.write("\n");
+			}
+			if(this.recorder.playerNumber == 2){
+				writer.write(this.recorder.players[0].playerName + "");
+				writer.write("\n");
+				writer.write(this.recorder.players[0].getScore() + "");
+				writer.write("\n");
+				writer.write(this.recorder.players[0].getMistake() + "");
+				writer.write("\n");
+				writer.write(this.recorder.players[1].playerName);
+				writer.write("\n");
+				writer.write(this.recorder.players[1].getScore() + "");
+				writer.write("\n");
+				writer.write(this.recorder.players[1].getMistake() + "");
+				writer.write("\n");
+			}
+			writer.flush();
+			writer.close();
+		}
+		catch(IOException e){
+			e.printStackTrace();
+		}
+		
 	}
 	
 	public void loadGame(File file){
@@ -181,6 +343,7 @@ public class Game{
 		
 		for(int i : recorder.openedID){
 			this.getBlocks()[i - 1].openHere(false);
+			
 		}
 		
 		this.getScoreA().setText("" + recorder.players[0].getScore());
@@ -225,6 +388,7 @@ public class Game{
 	}
 	
 	public void renewTextInfo(){
+		
 		this.getScoreA().setText("" + this.recorder.players[0].getScore());
 		this.getMistakeA().setText("" + this.recorder.players[0].getMistake());
 		this.getScoreB().setText("" + this.recorder.players[1].getScore());
@@ -273,25 +437,24 @@ public class Game{
 				thisPlayer = recorder.players[1];
 			}
 		}
-		
 	}
 	
 	public Text getThisMistakeText(){
-		switch(thisPlayer.playerName){
-			case "A":
-				return mistakeA;
-			case "B":
-				return mistakeB;
+		if(thisPlayer.playerName.equals(recorder.players[0].playerName)){
+			return mistakeA;
+		}
+		if(thisPlayer.playerName.equals(recorder.players[1].playerName)){
+			return mistakeB;
 		}
 		return null;
 	}
 	
 	public Text getThisScoreText(){
-		switch(thisPlayer.playerName){
-			case "A":
-				return scoreA;
-			case "B":
-				return scoreB;
+		if(thisPlayer.playerName.equals(recorder.players[0].playerName)){
+			return scoreA;
+		}
+		if(thisPlayer.playerName.equals(recorder.players[1].playerName)){
+			return scoreB;
 		}
 		return null;
 	}
@@ -455,7 +618,6 @@ public class Game{
 				// 单人模式全开雷，玩家A获胜
 				txtWinner.setText(thisPlayer.playerName + "获胜！");
 				gameStart.thisGame.mapStages.get("primaryStage").setScene(gameStart.thisGame.mapScenes.get("Winner"));
-				
 			}
 		}
 		if(recorder.playerNumber == 2){
@@ -516,7 +678,32 @@ public class Game{
 		this.infoArea = infoArea;
 	}
 	
+	public void clearGame(){
+		
+		this.recorder.players[0].setScore(0);
+		this.recorder.players[0].setMistake(0);
+		this.recorder.players[1].setScore(0);
+		this.recorder.players[1].setMistake(0);
+		this.recorder.getStepList().clear();
+		this.recorder.getStep().clear();
+		this.recorder.unOpenBooms.clear();
+		this.recorder.allBooms.clear();
+		this.recorder.scoreList.clear();
+		
+		if(this.stepCount != 0){
+			this.setStepCount(0);
+		}
+		
+		this.renewTextInfo();
+		if(this.recorder.playerNumber == 2){
+			gameStart.thisGame.getInfoArea().appendText("\n现在是" + gameStart.thisGame.getThisPlayer().playerName +
+					"的回合！\n");
+		}
+		
+	}
+	
 	public void cheatMode(Boolean bool){
+		
 		if(bool){
 			for(int i : recorder.unOpenBooms){
 				this.getBlocks()[i - 1].openHere(false);
@@ -560,13 +747,31 @@ public class Game{
 		private int stepsChance = 0;
 		private int width, height;
 		private int stepCount = 0;
+		private GAMEMODE gamemode = null;
+		
 		private ArrayList<Integer> openedID = new ArrayList<Integer>();
 		private ArrayList<Integer> unOpenBooms = new ArrayList<Integer>();
 		private ArrayList<Integer> allBooms = new ArrayList<Integer>();
-		private int[][] inner = null;
+		private ArrayList<Integer> scoreList = new ArrayList<Integer>();
 		
+		private int[][] inner = null;
 		private ArrayList<ArrayList<Integer>> stepList = new ArrayList<>();
 		private ArrayList<Integer> step = new ArrayList<>();
+		
+		public void clear(){
+			this.players[0].setScore(0);
+			this.players[0].setMistake(0);
+			this.players[1].setScore(0);
+			this.players[1].setMistake(0);
+			this.players[2].setScore(0);
+			this.players[2].setMistake(0);
+			this.step.clear();
+			this.stepList.clear();
+			this.scoreList.clear();
+			this.playerNumber = 1;
+			this.players[0].playerName = "A";
+			
+		}
 		
 		public int getStepsChance(){
 			return this.stepsChance;
@@ -680,6 +885,22 @@ public class Game{
 		
 		public void setStepCount(int stepCount){
 			this.stepCount = stepCount;
+		}
+		
+		public ArrayList<Integer> getScoreList(){
+			return scoreList;
+		}
+		
+		public void setScoreList(ArrayList<Integer> scoreList){
+			this.scoreList = scoreList;
+		}
+		
+		public GAMEMODE getGamemode(){
+			return gamemode;
+		}
+		
+		public void setGamemode(GAMEMODE gamemode){
+			this.gamemode = gamemode;
 		}
 	}
 	
