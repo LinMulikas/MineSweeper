@@ -3,9 +3,12 @@ package MainGame;
 import GameControl.Block;
 import GameControl.Position;
 import GameControl.Square;
+import GameControl.rankPlayer;
 import Resource.Scheme.Scheme;
 import javafx.scene.Scene;
+import javafx.scene.control.Button;
 import javafx.scene.control.TextArea;
+import javafx.scene.control.TreeView;
 import javafx.scene.layout.GridPane;
 import javafx.scene.text.Text;
 import javafx.stage.Stage;
@@ -165,6 +168,70 @@ public class Game{
 		return null;
 	}
 	
+	public static ArrayList<String> loadRank(){
+		//第一步：先获取csv文件的路径，通过BufferedReader类去读该路径中的文件
+		File rankCSV = new File("L:\\SUSTech\\CODE\\ProjectVersion\\Project\\MineSweeper\\src\\Rank\\Rank.txt");
+		ArrayList<String> rankData = new ArrayList<>();
+		
+		try{
+			//第二步：从字符输入流读取文本，缓冲各个字符，从而实现字符、数组和行（文本的行数通过回车符来进行判定）的高效读取。
+			BufferedReader fileReader = new BufferedReader(new FileReader(rankCSV));
+			
+			String lineData = "";
+			//第三步：将文档的下一行数据赋值给lineData，并判断是否为空，若不为空则输出
+			while((lineData = fileReader.readLine()) != null){
+				rankData.add(lineData);
+//				System.out.println(lineData);
+			}
+//			System.out.println(rankData.toString());
+		}
+		catch(FileNotFoundException e){
+			System.out.println("没有找到指定文件");
+		}
+		catch(IOException e){
+			System.out.println("文件读写出错");
+		}
+		return rankData;
+	}
+	
+	public void saveScore(){
+		File rankCSV = new File("L:\\SUSTech\\CODE\\ProjectVersion\\Project\\MineSweeper\\src\\Rank\\Rank.txt");
+		
+		try{
+			BufferedWriter writer = new BufferedWriter(
+					new OutputStreamWriter(
+							new FileOutputStream(rankCSV, true), "UTF-8"));
+			if(this.recorder.playerNumber == 1){
+				writer.write(this.recorder.players[0].playerName + "");
+				writer.write("\n");
+				writer.write(this.recorder.players[0].getScore() + "");
+				writer.write("\n");
+				writer.write(this.recorder.players[0].getMistake() + "");
+				writer.write("\n");
+			}
+			if(this.recorder.playerNumber == 2){
+				writer.write(this.recorder.players[0].playerName + "");
+				writer.write("\n");
+				writer.write(this.recorder.players[0].getScore() + "");
+				writer.write("\n");
+				writer.write(this.recorder.players[0].getMistake() + "");
+				writer.write("\n");
+				writer.write(this.recorder.players[1].playerName);
+				writer.write("\n");
+				writer.write(this.recorder.players[1].getScore() + "");
+				writer.write("\n");
+				writer.write(this.recorder.players[1].getMistake() + "");
+				writer.write("\n");
+			}
+			writer.flush();
+			writer.close();
+		}
+		catch(IOException e){
+			e.printStackTrace();
+		}
+		
+	}
+	
 	public void loadGame(File file){
 		Recorder theRecord = loadSave(file);
 		this.setRecorder(theRecord);
@@ -277,21 +344,21 @@ public class Game{
 	}
 	
 	public Text getThisMistakeText(){
-		switch(thisPlayer.playerName){
-			case "A":
-				return mistakeA;
-			case "B":
-				return mistakeB;
+		if(thisPlayer.playerName.equals(recorder.players[0].playerName)){
+			return mistakeA;
+		}
+		if(thisPlayer.playerName.equals(recorder.players[1].playerName)){
+			return mistakeB;
 		}
 		return null;
 	}
 	
 	public Text getThisScoreText(){
-		switch(thisPlayer.playerName){
-			case "A":
-				return scoreA;
-			case "B":
-				return scoreB;
+		if(thisPlayer.playerName.equals(recorder.players[0].playerName)){
+			return scoreA;
+		}
+		if(thisPlayer.playerName.equals(recorder.players[1].playerName)){
+			return scoreB;
 		}
 		return null;
 	}
@@ -455,7 +522,6 @@ public class Game{
 				// 单人模式全开雷，玩家A获胜
 				txtWinner.setText(thisPlayer.playerName + "获胜！");
 				gameStart.thisGame.mapStages.get("primaryStage").setScene(gameStart.thisGame.mapScenes.get("Winner"));
-				
 			}
 		}
 		if(recorder.playerNumber == 2){

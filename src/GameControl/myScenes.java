@@ -13,7 +13,7 @@ import javafx.scene.text.Font;
 import javafx.scene.text.Text;
 import javafx.stage.Stage;
 
-import java.io.File;
+import java.io.*;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -36,8 +36,20 @@ public class myScenes{
 	public static Scene Winner;
 	// GameLoader
 	public static Scene LoadGame;
+	// Rank
+	public static Scene Rank;
 	
-	// GameLoader 定位
+	/**
+	 * Rank 定位
+	 */
+	
+	// 初始化Rank Scene
+	static{
+		Scene rankScene = createRankScene();
+		gameStart.thisGame.mapScenes.put("Rank", rankScene);
+	}
+	
+	// GameLoader Scene
 	static{
 		// 将要加入的文件列表
 		List<File> savesFiles = new ArrayList<File>();
@@ -58,6 +70,7 @@ public class myScenes{
 		}
 		// 将目标文件夹下的文件加入到文件列表
 		for(File f1 : savesFiles){
+			// 临时检查文件列表读取是否正确
 			System.out.println(f1.getName());
 		}
 		
@@ -77,7 +90,6 @@ public class myScenes{
 			if(event.getClickCount() == 2){
 				TreeItem<File> item = fileTreeView.getSelectionModel().getSelectedItem();
 				gameStart.thisGame.loadGame(item.getValue());
-				
 			}
 		});
 		
@@ -96,6 +108,7 @@ public class myScenes{
 	
 	// Winner 定位
 	static{
+		
 		FlowPane flWinner = new FlowPane();
 		flWinner.setPrefSize(1200, 800);
 		Text txtWinner = new Text("Test");
@@ -105,7 +118,7 @@ public class myScenes{
 		Button btnSave = new Button("保存分数");
 		btnSave.setOnAction(event -> {
 			// 保存分数
-			
+			gameStart.thisGame.saveScore();
 		});
 		btnSave.setPrefSize(120, 40);
 		
@@ -136,7 +149,7 @@ public class myScenes{
 		TextField txtGameName = new TextField();
 		HBox hboxGameName = new HBox();
 		txtGameName.setMaxWidth(200);
-		Button btnSetName = new Button("确定");
+		Button btnSetName = new Button("确定名称");
 		btnSetName.setOnAction(event -> {
 			if(txtGameName.getText().equals("")){
 				Stage gameNameWarning = new Stage();
@@ -412,7 +425,18 @@ public class myScenes{
 		hboxSlider.getChildren().addAll(txtSlider, sliderSteps);
 		
 		hboxSlider.setVisible(false);
-		Label labPlayers = new Label("请选择玩家步数：");
+		Label labPlayers = new Label("请选择玩家人数：");
+		
+		Label labPlayerAName = new Label("玩家1的名字：");
+		TextField txtfNameA = new TextField();
+		
+		Label labPlayerBName = new Label("玩家2的名字：");
+		TextField txtfNameB = new TextField();
+		
+		Button btnEnterName = new Button("确定名称");
+		
+		labPlayerBName.setVisible(false);
+		txtfNameB.setVisible(false);
 		
 		ToggleGroup groupPlayers = new ToggleGroup();
 		
@@ -425,6 +449,8 @@ public class myScenes{
 		btnOnePlayer.setOnAction(event -> {
 			if(btnOnePlayer.isSelected()){
 				gameStart.thisGame.getRecorder().setPlayerNumber(1);
+				labPlayerBName.setVisible(false);
+				txtfNameB.setVisible(false);
 				hboxSlider.setVisible(false);
 			}
 		});
@@ -435,9 +461,81 @@ public class myScenes{
 		btnTwoPlayer.setOnAction(event -> {
 			gameStart.thisGame.getRecorder().setPlayerNumber(2);
 			if(btnTwoPlayer.isSelected()){
+				labPlayerBName.setVisible(true);
+				txtfNameB.setVisible(true);
 				hboxSlider.setVisible(true);
 			}
 			
+		});
+		
+		btnEnterName.setOnAction(event -> {
+			System.out.println(txtfNameA.getText().length());
+			if(btnTwoPlayer.isSelected()){
+				if((txtfNameA.getText().length() != 0) && (txtfNameB.getText().length() != 0)){
+					gameStart.thisGame.getRecorder().getPlayers()[0].playerName = txtfNameA.getText();
+					gameStart.thisGame.getRecorder().getPlayers()[1].playerName = txtfNameB.getText();
+					System.out.println(gameStart.thisGame.getRecorder().getPlayers()[0].playerName);
+				} else{
+//					System.out.println("SSSS");
+					Stage playerNameWarning = new Stage();
+					playerNameWarning.setTitle("警告");
+					FlowPane flNameWarning = new FlowPane();
+					flNameWarning.setPrefSize(300, 200);
+					flNameWarning.setAlignment(Pos.CENTER);
+					Text txtNameWarning = new Text("你的玩家姓名有空白\n系统将会采取默认名称！\n");
+					txtNameWarning.setFont(new Font(24));
+					HBox hboxNameChoose = new HBox();
+					Button btnOK = new Button("确定");
+					btnOK.setOnAction(event1 -> {
+						playerNameWarning.close();
+						
+					});
+					Button btnNO = new Button("取消");
+					btnNO.setOnAction(event1 -> {
+						playerNameWarning.close();
+					});
+					hboxNameChoose.setSpacing(100);
+					hboxNameChoose.getChildren().addAll(btnOK, btnNO);
+					
+					flNameWarning.getChildren().addAll(txtNameWarning, hboxNameChoose);
+					
+					playerNameWarning.setScene(new Scene(flNameWarning));
+					playerNameWarning.setResizable(false);
+					playerNameWarning.show();
+				}
+			}
+			if(btnOnePlayer.isSelected()){
+				if((txtfNameA.getText().length() != 0)){
+					gameStart.thisGame.getRecorder().getPlayers()[0].playerName = txtfNameA.getText();
+				} else{
+//					System.out.println("SSSS");
+					Stage playerNameWarning = new Stage();
+					playerNameWarning.setTitle("警告");
+					FlowPane flNameWarning = new FlowPane();
+					flNameWarning.setPrefSize(300, 200);
+					flNameWarning.setAlignment(Pos.CENTER);
+					Text txtNameWarning = new Text("你的玩家姓名有空白\n系统将会采取默认名称！\n");
+					txtNameWarning.setFont(new Font(24));
+					HBox hboxNameChoose = new HBox();
+					Button btnOK = new Button("确定");
+					btnOK.setOnAction(event1 -> {
+						playerNameWarning.close();
+						
+					});
+					Button btnNO = new Button("取消");
+					btnNO.setOnAction(event1 -> {
+						playerNameWarning.close();
+					});
+					hboxNameChoose.setSpacing(100);
+					hboxNameChoose.getChildren().addAll(btnOK, btnNO);
+					
+					flNameWarning.getChildren().addAll(txtNameWarning, hboxNameChoose);
+					
+					playerNameWarning.setScene(new Scene(flNameWarning));
+					playerNameWarning.setResizable(false);
+					playerNameWarning.show();
+				}
+			}
 		});
 		
 		HBox hboxPlayers = new HBox();
@@ -447,6 +545,17 @@ public class myScenes{
 		VBox vboxPlayer = new VBox();
 		vboxPlayer.setSpacing(10);
 		vboxPlayer.getChildren().addAll(labPlayers, hboxPlayers, hboxSlider);
+		
+		HBox hboxPlayer = new HBox();
+		
+		GridPane gridPlayerName = new GridPane();
+		gridPlayerName.add(labPlayerAName, 1, 1);
+		gridPlayerName.add(labPlayerBName, 1, 2);
+		gridPlayerName.add(txtfNameA, 2, 1);
+		gridPlayerName.add(txtfNameB, 2, 2);
+		gridPlayerName.add(btnEnterName, 1, 3);
+		
+		hboxPlayer.getChildren().addAll(vboxPlayer, gridPlayerName);
 		
 		btnOnePlayer.setToggleGroup(groupPlayers);
 		btnTwoPlayer.setToggleGroup(groupPlayers);
@@ -461,9 +570,9 @@ public class myScenes{
 				if(!gameStart.thisGame.getGameMode().equals(Game.GAMEMODE.SELF)){
 					Stage gameStartWarning = new Stage();
 					gameStartWarning.setTitle("警告");
-					FlowPane flWarning = new FlowPane();
-					flWarning.setPrefSize(300, 200);
-					flWarning.setAlignment(Pos.CENTER);
+					FlowPane flSelfWarning = new FlowPane();
+					flSelfWarning.setPrefSize(300, 200);
+					flSelfWarning.setAlignment(Pos.CENTER);
 					Text txtWarning = new Text("你的自定义设置没有点击'采用设置'\n是否要开始默认游戏!\n");
 					
 					HBox hboxMyChoose = new HBox();
@@ -483,10 +592,10 @@ public class myScenes{
 					hboxMyChoose.setSpacing(100);
 					hboxMyChoose.getChildren().addAll(btnOK, btnNO);
 					
-					flWarning.setOrientation(Orientation.VERTICAL);
-					flWarning.getChildren().addAll(txtWarning, hboxMyChoose);
+					flSelfWarning.setOrientation(Orientation.VERTICAL);
+					flSelfWarning.getChildren().addAll(txtWarning, hboxMyChoose);
 					
-					gameStartWarning.setScene(new Scene(flWarning));
+					gameStartWarning.setScene(new Scene(flSelfWarning));
 					gameStartWarning.setResizable(false);
 					gameStartWarning.show();
 				} else{
@@ -495,9 +604,11 @@ public class myScenes{
 					primaryStage.setScene(gameStart.thisGame.mapScenes.get("GameScene"));
 				}
 			}
+			
 			if(btnTwoPlayer.isSelected()){
 				gameStart.thisGame.getRecorder().setStepsChance((int) sliderSteps.getValue());
 			}
+			
 			createGameScene();
 			
 			gameStart.thisGame.getRecorder().setWidth(gameStart.thisGame.getWidth());
@@ -521,7 +632,7 @@ public class myScenes{
 		
 		VBox vboxSetting = new VBox();
 		vboxSetting.setSpacing(40);
-		vboxSetting.getChildren().addAll(vboxGameName, vboxScheme, vboxPlayer, FLGameMode);
+		vboxSetting.getChildren().addAll(vboxGameName, vboxScheme, hboxPlayer, FLGameMode);
 		
 		vboxTotalSetting.getChildren().addAll(vboxSetting, hboxSceneControl);
 
@@ -575,17 +686,158 @@ public class myScenes{
 			myScenes.primaryStage.setTitle("存档浏览");
 		});
 		
-		Button btn3 = new Button("游戏测试");
+		Button btn3 = new Button("排行榜");
 		btn3.setPrefSize(200, 80);
 		btn3.setOnAction(event -> {
-			createGameScene();
-			primaryStage.setTitle("游戏名称");
-			primaryStage.setScene(gameStart.thisGame.mapScenes.get("GameScene"));
+			createRankScene();
+			primaryStage.setTitle("排行榜");
+			primaryStage.setScene(gameStart.thisGame.mapScenes.get("Rank"));
 		});
 		
 		flowPane.getChildren().addAll(btn1, btn2, btn3);
 		myScenes.Launcher = new Scene(flowPane);
 		gameStart.thisGame.mapScenes.put("Launcher", Launcher);
+	}
+	
+	public static Scene createLauncherScene(){
+		
+		// Launcher 界面绘制
+		// flowPane 的基础设置
+		// 菜单栏
+		Scene Launcher;
+		
+		FlowPane flowPane = new FlowPane();
+		flowPane.setOrientation(Orientation.VERTICAL);
+		flowPane.setAlignment(Pos.CENTER);
+		flowPane.setPrefSize(1200, 800);
+		flowPane.setVgap(120);
+		flowPane.setStyle(
+				" -fx-background-image: url(" + "file:src/Resource/Image/Useful/Launcher.jpg" + "); " +
+						" -fx-background-size: 120%;");
+		
+		// Launcher界面的基础功能
+		
+		// 按钮1：新建游戏
+		Button btn1 = new Button("新建游戏");
+		btn1.setPrefSize(200, 80);
+		btn1.setOnAction(event -> {
+			myScenes.primaryStage.setScene(myScenes.SettingScene);
+			myScenes.primaryStage.setTitle("游戏设置");
+		});
+		
+		// 按钮2：新建游戏
+		Button btn2 = new Button("加载存档");
+		btn2.setPrefSize(200, 80);
+		// 绑定基础功能
+		btn2.setOnAction(event -> {
+			myScenes.primaryStage.setScene(myScenes.LoadGame);
+			myScenes.primaryStage.setTitle("存档浏览");
+		});
+		
+		Button btn3 = new Button("排行榜");
+		btn3.setPrefSize(200, 80);
+		btn3.setOnAction(event -> {
+			createRankScene();
+			primaryStage.setTitle("排行榜");
+			primaryStage.setScene(gameStart.thisGame.mapScenes.get("Rank"));
+		});
+		
+		flowPane.getChildren().addAll(btn1, btn2, btn3);
+		Launcher = new Scene(flowPane);
+		if(gameStart.thisGame.mapScenes.getOrDefault("Launcher", null) != null){
+			gameStart.thisGame.mapScenes.remove("Launcher");
+		}
+		gameStart.thisGame.mapScenes.put("Launcher", Launcher);
+		return Launcher;
+		
+	}
+	
+	public static Scene createRankScene(){
+		TableView tableRank = rankPlayer.tableRank();
+		
+		Label labRank = new Label("玩家排行榜");
+		labRank.setFont(new Font(24));
+		
+		Button btnToMain = new Button("返回菜单");
+		btnToMain.setOnAction(event -> {
+			primaryStage.setScene(Launcher);
+		});
+		
+		VBox vboxRank = new VBox();
+		vboxRank.setAlignment(Pos.CENTER);
+		
+		vboxRank.getChildren().addAll(labRank, tableRank, btnToMain);
+		Scene rankScene = new Scene(vboxRank);
+		
+		// 刷新排行榜
+		if(gameStart.thisGame.mapScenes.getOrDefault("Rank", null) != null){
+			gameStart.thisGame.mapScenes.remove("Rank");
+			gameStart.thisGame.mapScenes.put("Rank", rankScene);
+		}
+		
+		return rankScene;
+	}
+	
+	public static Scene CreateGameLoaderScene(){
+		Scene GameLoader;
+		// 将要加入的文件列表
+		List<File> savesFiles = new ArrayList<File>();
+		
+		Map<String, File> saves = new HashMap<String, File>();
+		
+		String rootPath = new String("L:\\SUSTech\\CODE\\ProjectVersion\\Project\\MineSweeper\\src\\Saves");
+		
+		File rootFile = new File(rootPath);
+		
+		File[] files = rootFile.listFiles();// 获取目录下的所有文件或文件夹
+		
+		if(files != null){
+			for(File ifile : files){
+				savesFiles.add(ifile);
+				saves.put(ifile.getName(), ifile);
+			}
+		}
+		// 将目标文件夹下的文件加入到文件列表
+		for(File f1 : savesFiles){
+			// 临时检查文件列表读取是否正确
+			System.out.println(f1.getName());
+		}
+		
+		TreeItem<File> treeRoot = new TreeItem<File>(rootFile);
+		
+		for(File file : savesFiles){
+			TreeItem<File> item = new TreeItem<>(file);
+			treeRoot.getChildren().add(item);
+		}
+		
+		treeRoot.setExpanded(true);
+		
+		TreeView<File> fileTreeView = new TreeView<File>(treeRoot);
+		fileTreeView.setShowRoot(false);
+		
+		fileTreeView.setOnMouseClicked(event -> {
+			if(event.getClickCount() == 2){
+				TreeItem<File> item = fileTreeView.getSelectionModel().getSelectedItem();
+				gameStart.thisGame.loadGame(item.getValue());
+			}
+		});
+		
+		VBox vboxLoadGame = new VBox();
+		Button btnLoadToMain = new Button("返回菜单");
+		btnLoadToMain.setOnAction(event -> {
+			primaryStage.setTitle("主菜单");
+			primaryStage.setScene(Launcher);
+		});
+		vboxLoadGame.getChildren().addAll(fileTreeView, btnLoadToMain);
+		vboxLoadGame.setPrefWidth(800);
+		
+		GameLoader = new Scene(vboxLoadGame);
+		
+		if(gameStart.thisGame.mapScenes.getOrDefault("LoadGame", null) != null){
+			gameStart.thisGame.mapScenes.remove("LoadGame");
+		}
+		gameStart.thisGame.mapScenes.put("LoadGame", GameLoader);
+		return GameLoader;
 	}
 	
 	/**

@@ -7,10 +7,15 @@ import java.io.Serializable;
 
 public class Player implements Serializable{
 	public String playerName;
+	private int id = 0;
 	private int score = 0;
 	private int mistake = 0;
 	
 	public Player(String name){
+		this.playerName = name;
+	}
+	
+	public Player(String name, int id){
 		this.playerName = name;
 	}
 	
@@ -42,4 +47,11 @@ public class Player implements Serializable{
 		this.mistake = mistake;
 	}
 	
+	public int getId(){
+		return id;
+	}
+	
+	public void setId(int id){
+		this.id = id;
+	}
 }

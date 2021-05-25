@@ -5,6 +5,7 @@ import Resource.Scheme.Scheme;
 import com.sun.java.swing.plaf.windows.WindowsClassicLookAndFeel;
 import javafx.application.Application;
 import javafx.stage.Stage;
+import GameControl.rankPlayer;
 
 import javax.swing.*;
 
