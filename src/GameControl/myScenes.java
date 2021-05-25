@@ -36,6 +36,7 @@ public class myScenes{
 	public static Scene Winner;
 	// GameLoader
 	public static Scene LoadGame;
+	public static Scene LoadRecord;
 	// Rank
 	public static Scene Rank;
 	
@@ -43,10 +44,15 @@ public class myScenes{
 	 * Rank 定位
 	 */
 	
+	static{
+		createRecordLoadScene();
+		LoadRecord = gameStart.thisGame.mapScenes.get("LoadRecord");
+	}
+	
 	// 初始化Rank Scene
 	static{
 		createRankScene();
-		Scene rankScene = gameStart.thisGame.mapScenes.get("Rank");
+		Rank = gameStart.thisGame.mapScenes.get("Rank");
 	}
 	
 	// GameLoader Scene
@@ -448,12 +454,12 @@ public class myScenes{
 		});
 		
 		btnEnterName.setOnAction(event -> {
-			System.out.println(txtfNameA.getText().length());
+//			System.out.println(txtfNameA.getText().length());
 			if(btnTwoPlayer.isSelected()){
 				if((txtfNameA.getText().length() != 0) && (txtfNameB.getText().length() != 0)){
 					gameStart.thisGame.getRecorder().getPlayers()[0].playerName = txtfNameA.getText();
 					gameStart.thisGame.getRecorder().getPlayers()[1].playerName = txtfNameB.getText();
-					System.out.println(gameStart.thisGame.getRecorder().getPlayers()[0].playerName);
+//					System.out.println(gameStart.thisGame.getRecorder().getPlayers()[0].playerName);
 				} else{
 //					System.out.println("SSSS");
 					Stage playerNameWarning = new Stage();
@@ -542,6 +548,8 @@ public class myScenes{
 		// 开始游戏按钮和返回菜单按钮
 		Button btnGameStart = new Button("开始游戏");
 		btnGameStart.setOnAction(event -> {
+			
+			gameStart.thisGame.getRecorder().setGamemode(gameStart.thisGame.getGameMode());
 			
 			if(btnSelf.isSelected()){
 				if(!gameStart.thisGame.getGameMode().equals(Game.GAMEMODE.SELF)){
@@ -650,6 +658,7 @@ public class myScenes{
 		btn1.setPrefSize(200, 80);
 		btn1.setOnAction(event -> {
 			createSettingScene();
+			gameStart.thisGame.setGameMode(Game.GAMEMODE.PRIMARY);
 			myScenes.primaryStage.setScene(gameStart.thisGame.mapScenes.get("SettingScene"));
 			myScenes.primaryStage.setTitle("游戏设置");
 		});
@@ -672,7 +681,14 @@ public class myScenes{
 			primaryStage.setScene(gameStart.thisGame.mapScenes.get("Rank"));
 		});
 		
-		flowPane.getChildren().addAll(btn1, btn2, btn3);
+		Button btn4 = new Button("录像回放");
+		btn4.setPrefSize(200, 80);
+		btn4.setOnAction(event -> {
+			primaryStage.setTitle("本地录像");
+			primaryStage.setScene(gameStart.thisGame.mapScenes.get("LoadRecord"));
+		});
+		
+		flowPane.getChildren().addAll(btn1, btn2, btn3, btn4);
 		Launcher = new Scene(flowPane);
 		gameStart.thisGame.mapScenes.put("Launcher", Launcher);
 	}
@@ -718,10 +734,10 @@ public class myScenes{
 			}
 		}
 		// 将目标文件夹下的文件加入到文件列表
-		for(File f1 : savesFiles){
-			// 临时检查文件列表读取是否正确
-			System.out.println(f1.getName());
-		}
+//		for(File f1 : savesFiles){
+//			// 临时检查文件列表读取是否正确
+//			System.out.println(f1.getName());
+//		}
 		
 		TreeItem<File> treeRoot = new TreeItem<File>(rootFile);
 		
@@ -756,6 +772,125 @@ public class myScenes{
 		gameStart.thisGame.mapScenes.put("LoadGame", GameLoader);
 	}
 	
+	public static void createRecordLoadScene(){
+		Scene RecordLoader;
+		// 将要加入的文件列表
+		List<File> savesFiles = new ArrayList<File>();
+		
+		Map<String, File> saves = new HashMap<String, File>();
+		
+		String rootPath = new String("L:\\SUSTech\\CODE\\ProjectVersion\\Project\\MineSweeper\\src\\Saves");
+		
+		File rootFile = new File(rootPath);
+		
+		File[] files = rootFile.listFiles();// 获取目录下的所有文件或文件夹
+		
+		if(files != null){
+			for(File ifile : files){
+				savesFiles.add(ifile);
+				saves.put(ifile.getName(), ifile);
+			}
+		}
+		// 将目标文件夹下的文件加入到文件列表
+//		for(File f1 : savesFiles){
+//			// 临时检查文件列表读取是否正确
+//			System.out.println(f1.getName());
+//		}
+		
+		TreeItem<File> treeRoot = new TreeItem<File>(rootFile);
+		
+		for(File file : savesFiles){
+			TreeItem<File> item = new TreeItem<>(file);
+			treeRoot.getChildren().add(item);
+		}
+		
+		treeRoot.setExpanded(true);
+		
+		TreeView<File> fileTreeView = new TreeView<File>(treeRoot);
+		fileTreeView.setShowRoot(false);
+		
+		fileTreeView.setOnMouseClicked(event -> {
+			if(event.getClickCount() == 2){
+				TreeItem<File> item = fileTreeView.getSelectionModel().getSelectedItem();
+				System.out.println(item.getValue());
+				gameStart.thisGame.loadRecord(item.getValue());
+				
+			}
+		});
+		
+		VBox vboxLoadGame = new VBox();
+		Button btnLoadToMain = new Button("返回菜单");
+		btnLoadToMain.setOnAction(event -> {
+			primaryStage.setTitle("主菜单");
+			primaryStage.setScene(Launcher);
+		});
+		vboxLoadGame.getChildren().addAll(fileTreeView, btnLoadToMain);
+		vboxLoadGame.setPrefWidth(800);
+		
+		RecordLoader = new Scene(vboxLoadGame);
+		
+		gameStart.thisGame.mapScenes.put("LoadRecord", RecordLoader);
+	}
+	
+	public static void createMusicScedne(){
+		Scene music;
+		// 将要加入的文件列表
+		List<File> savesFiles = new ArrayList<File>();
+		
+		Map<String, File> saves = new HashMap<String, File>();
+		
+		String rootPath = new String("L:\\SUSTech\\CODE\\ProjectVersion\\Project\\MineSweeper\\src\\Resource\\Music");
+		
+		File rootFile = new File(rootPath);
+		
+		File[] files = rootFile.listFiles();// 获取目录下的所有文件或文件夹
+		
+		if(files != null){
+			for(File ifile : files){
+				savesFiles.add(ifile);
+				saves.put(ifile.getName(), ifile);
+			}
+		}
+		// 将目标文件夹下的文件加入到文件列表
+//		for(File f1 : savesFiles){
+//			// 临时检查文件列表读取是否正确
+//			System.out.println(f1.getName());
+//		}
+		
+		TreeItem<File> treeRoot = new TreeItem<File>(rootFile);
+		
+		for(File file : savesFiles){
+			TreeItem<File> item = new TreeItem<>(file);
+			treeRoot.getChildren().add(item);
+		}
+		
+		treeRoot.setExpanded(true);
+		
+		TreeView<File> fileTreeView = new TreeView<File>(treeRoot);
+		fileTreeView.setShowRoot(false);
+		
+		fileTreeView.setOnMouseClicked(event -> {
+			if(event.getClickCount() == 2){
+				TreeItem<File> item = fileTreeView.getSelectionModel().getSelectedItem();
+				// 播放音乐
+				
+			}
+		});
+		
+		VBox vboxMusic = new VBox();
+		Button btnLoadToMain = new Button("返回菜单");
+		btnLoadToMain.setOnAction(event -> {
+			primaryStage.setTitle("主菜单");
+			primaryStage.setScene(Launcher);
+		});
+		vboxMusic.getChildren().addAll(fileTreeView, btnLoadToMain);
+		vboxMusic.setPrefWidth(800);
+		
+		music = new Scene(vboxMusic);
+		
+		gameStart.thisGame.mapScenes.put("Music", music);
+	}
+	
 	/**
 	 * 包含初始绘制的一些方法
 	 */
@@ -787,7 +922,7 @@ public class myScenes{
 		// 1.3 Save 选项
 		MenuItem itemSave = new MenuItem("保存游戏");
 		itemSave.setOnAction(event -> {
-			System.out.println(gameStart.thisGame.getRecorder().toString());
+//			System.out.println(gameStart.thisGame.getRecorder().toString());
 			Game.createSave(gameStart.thisGame.getName());
 		});
 		
@@ -805,6 +940,7 @@ public class myScenes{
 			}
 		});
 		RadioMenuItem itemB = new RadioMenuItem("Scheme B");
+		itemB.setSelected(true);
 		itemB.setOnAction(event -> {
 			if(itemB.isSelected()){
 				gameStart.thisGame.setBlocksScheme(Scheme.B);
@@ -821,9 +957,26 @@ public class myScenes{
 		menuScheme.getItems().addAll(itemA, itemB, itemC);
 		
 		// 3. "GUI" 菜单
-		Menu menuGUI = new Menu("图形界面选项");
+		Menu menuGameRule = new Menu("游戏选项");
 		
-		menuBarGame.getMenus().addAll(menuGame, menuScheme, menuGUI);
+		ToggleGroup typeChoose = new ToggleGroup();
+		
+		RadioMenuItem itemSingle = new RadioMenuItem("逐个扫雷");
+		itemSingle.setSelected(true);
+		RadioMenuItem itemSweep = new RadioMenuItem("连续扫雷");
+		
+		typeChoose.getToggles().addAll(itemSingle, itemSweep);
+		
+		itemSingle.setOnAction(event -> {
+			gameStart.thisGame.setSweepType(Square.sweepType.SINGLE);
+		});
+		
+		itemSweep.setOnAction(event -> {
+			gameStart.thisGame.setSweepType(Square.sweepType.CONTINOUS);
+		});
+		menuGameRule.getItems().addAll(itemSingle, itemSweep);
+		
+		menuBarGame.getMenus().addAll(menuGame, menuScheme, menuGameRule);
 		
 		Scene GameScene = null;
 		// 创建默认初级游戏
@@ -852,18 +1005,23 @@ public class myScenes{
 		btnCheat.setSelected(false);
 		btnCheat.setOnAction(event -> {
 			if(btnCheat.isSelected()){
-				System.out.println("启动作弊模式");
+				gameStart.thisGame.getInfoArea().appendText("\n启动作弊模式\n");
 				gameStart.thisGame.cheatMode(true);
 			} else{
 				gameStart.thisGame.cheatMode(false);
 			}
 		});
 		
-		Button btnSave = new Button("Save Game");
+		Button btnHelp = new Button("提示一下");
 		
-		btnSave.setOnAction(event -> {
-			System.out.println(gameStart.thisGame.getRecorder().toString());
-			Game.createSave(gameStart.thisGame.getName());
+		btnHelp.setOnAction(event -> {
+			if(gameStart.thisGame.getStepCount() != 0){
+				String help;
+				int id = gameStart.thisGame.getRecorder().getUnOpenBooms().get(0);
+				help = "\n(" + Position.idToX(id) + "," + Position.idToY(id) + ")是地雷！";
+				gameStart.thisGame.getInfoArea().appendText(help);
+			}
+			
 		});
 		
 		// 菜单栏、游戏区域、控制区域加入到游戏面板
@@ -907,6 +1065,12 @@ public class myScenes{
 			txtMistakeB.setVisible(false);
 		}
 		
+		// 悔棋按钮
+		Button btnBack = new Button("后退一步");
+		btnBack.setOnAction(event -> {
+			gameStart.thisGame.back();
+		});
+		
 		GridPane gridPlayers = new GridPane();
 		gridPlayers.setVgap(10);
 		gridPlayers.setHgap(10);
@@ -927,7 +1091,8 @@ public class myScenes{
 		gridControl.setVgap(20);
 		gridControl.add(txtControl, 1, 1);
 		gridControl.add(btnCheat, 1, 3);
-		gridControl.add(btnSave, 1, 2);
+		gridControl.add(btnHelp, 1, 2);
+		gridControl.add(btnBack, 2, 2);
 		
 		vboxControlArea.setSpacing(20);
 		vboxControlArea.setPrefHeight(gameStart.thisGame.getHeight()*40);

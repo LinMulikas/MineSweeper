@@ -36,9 +36,9 @@ public class rankPlayer{
 		
 		ArrayList<String> rankData = Game.loadRank();
 //		System.out.println(rankData.toString());
-		System.out.println(rankData.size());
+//		System.out.println(rankData.size());
 		int number = (rankData.size())/3;
-		System.out.println(number);
+//		System.out.println(number);
 		
 		for(int i = 1; i < number; i++){
 			data.add(

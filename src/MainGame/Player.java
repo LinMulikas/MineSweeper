@@ -39,6 +39,10 @@ public class Player implements Serializable{
 		this.mistake++;
 	}
 	
+	public void minusMistake(){
+		this.mistake--;
+	}
+	
 	public int getMistake(){
 		return mistake;
 	}

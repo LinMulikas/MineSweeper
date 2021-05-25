@@ -88,6 +88,9 @@ public class Game{
 		this.sweepType = Square.sweepType.SINGLE;
 		this.scheme = Scheme.B;
 		thisPlayer = recorder.players[0];
+		if(recorder.playerNumber == 2){
+			this.infoArea.appendText("\n现在是" + thisPlayer.playerName + "的回合！");
+		}
 	}
 	
 	public Game(GAMEMODE gamemode, Scheme iScheme){
@@ -152,7 +155,7 @@ public class Game{
 			Recorder newRecorder = (Recorder) ois.readObject();
 			// 临时检测
 //			System.out.println(newRecorder.getPlayerNumber());
-			System.out.println(newRecorder.getStepCount());
+//			System.out.println(newRecorder.getStepCount());
 			return newRecorder;
 		}
 		catch(Exception e){
@@ -192,6 +195,98 @@ public class Game{
 			System.out.println("文件读写出错");
 		}
 		return rankData;
+	}
+	
+	public void loadRecord(File file){
+		Recorder theRecord = loadSave(file);
+		this.setRecorder(theRecord);
+		
+		this.setName(file.getName().substring(0, file.getName().length() - 4));
+		this.setWidth(this.recorder.width);
+		this.setHeight(this.recorder.height);
+		
+		this.recorder.stepList.clear();
+		this.recorder.step.clear();
+		
+		this.setStepCount(0);
+		createGameScene();
+		
+		this.setInnerArea(this.recorder.inner);
+		
+		primaryStage.setTitle(gameStart.thisGame.getName());
+		primaryStage.setScene(gameStart.thisGame.mapScenes.get("GameScene"));
+		
+		for(ArrayList<Integer> stepList : recorder.stepList){
+			System.out.println("SSS");
+			for(int i : stepList){
+				System.out.println(i);
+				try{
+					Thread.sleep(100);
+				}
+				catch(InterruptedException e1){
+					//捕获异常
+					e1.printStackTrace();
+				}
+				this.Blocks[i - 1].openHere(false);
+			}
+		}
+		
+	}
+	
+	public void back(){
+		if(stepCount == 0){
+			return;
+		}
+		ArrayList<Integer> lastStep = recorder.stepList.get(recorder.stepList.size() - 1);
+		
+		// 回溯最后一步的方块
+		// proj模式中回溯只有一步
+		int steps = lastStep.size();
+//		System.out.println(steps);
+		int cnt = 0;
+		for(int id : lastStep){
+//			System.out.println(id);
+			if(cnt == steps){
+				break;
+			}
+			if(this.getBlocks()[id - 1].getStatus().equals(Block.PreStatus.BOOM)){
+				this.recorder.openedID.remove(recorder.openedID.size() - 1 - cnt);
+				this.recorder.unOpenBooms.add(id);
+			} else{
+				this.recorder.openedID.remove(recorder.openedID.size() - 1 - cnt);
+			}
+			this.getBlocks()[id - 1].setStatus(Block.PreStatus.CLOSE);
+			cnt++;
+		}
+		
+		// 回溯最后一步的分数
+		switch(this.recorder.scoreList.get(this.recorder.scoreList.size() - 1)){
+			case 1:
+				thisPlayer.minusScore();
+				break;
+			case 2:
+				thisPlayer.minusMistake();
+				break;
+			case -1:
+				thisPlayer.addScore();
+				break;
+		}
+		
+		// 刷新信息栏
+		int lastIndex = recorder.stepCount - 1;
+		this.renewTextInfo();
+		// 刷新信息提示
+		this.infoArea.appendText("\n玩家" + thisPlayer.playerName + "撤回了一步！");
+		
+		// 刷新recorder
+		this.recorder.scoreList.remove(lastIndex);
+		this.recorder.stepList.remove(lastIndex);
+		this.recorder.step.clear();
+		
+		// 刷新步数
+		this.setStepCount(this.stepCount - 2);
+		this.count();
+		
 	}
 	
 	public void saveScore(){
@@ -248,6 +343,7 @@ public class Game{
 		
 		for(int i : recorder.openedID){
 			this.getBlocks()[i - 1].openHere(false);
+			
 		}
 		
 		this.getScoreA().setText("" + recorder.players[0].getScore());
@@ -341,7 +437,6 @@ public class Game{
 				thisPlayer = recorder.players[1];
 			}
 		}
-		
 	}
 	
 	public Text getThisMistakeText(){
@@ -593,12 +688,17 @@ public class Game{
 		this.recorder.getStep().clear();
 		this.recorder.unOpenBooms.clear();
 		this.recorder.allBooms.clear();
+		this.recorder.scoreList.clear();
 		
 		if(this.stepCount != 0){
 			this.setStepCount(0);
 		}
 		
 		this.renewTextInfo();
+		if(this.recorder.playerNumber == 2){
+			gameStart.thisGame.getInfoArea().appendText("\n现在是" + gameStart.thisGame.getThisPlayer().playerName +
+					"的回合！\n");
+		}
 		
 	}
 	
@@ -647,9 +747,13 @@ public class Game{
 		private int stepsChance = 0;
 		private int width, height;
 		private int stepCount = 0;
+		private GAMEMODE gamemode = null;
+		
 		private ArrayList<Integer> openedID = new ArrayList<Integer>();
 		private ArrayList<Integer> unOpenBooms = new ArrayList<Integer>();
 		private ArrayList<Integer> allBooms = new ArrayList<Integer>();
+		private ArrayList<Integer> scoreList = new ArrayList<Integer>();
+		
 		private int[][] inner = null;
 		private ArrayList<ArrayList<Integer>> stepList = new ArrayList<>();
 		private ArrayList<Integer> step = new ArrayList<>();
@@ -663,6 +767,7 @@ public class Game{
 			this.players[2].setMistake(0);
 			this.step.clear();
 			this.stepList.clear();
+			this.scoreList.clear();
 			this.playerNumber = 1;
 			this.players[0].playerName = "A";
 			
@@ -780,6 +885,22 @@ public class Game{
 		
 		public void setStepCount(int stepCount){
 			this.stepCount = stepCount;
+		}
+		
+		public ArrayList<Integer> getScoreList(){
+			return scoreList;
+		}
+		
+		public void setScoreList(ArrayList<Integer> scoreList){
+			this.scoreList = scoreList;
+		}
+		
+		public GAMEMODE getGamemode(){
+			return gamemode;
+		}
+		
+		public void setGamemode(GAMEMODE gamemode){
+			this.gamemode = gamemode;
 		}
 	}
 	
