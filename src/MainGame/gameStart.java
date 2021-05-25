@@ -25,10 +25,10 @@ public class gameStart extends Application{
 	
 	@Override
 	public void start(Stage primaryStage){
-		thisGame = new Game(Game.GAMEMODE.PRIMARY, Scheme.B);
+		thisGame = new Game();
 		thisGame.stage = primaryStage;
-		// 把初始界面加入Map
 		thisGame.mapStages.put("primaryStage", primaryStage);
+		// 把初始界面加入Map
 		// 显示登录窗口
 		primaryStage.setTitle("Launcher");
 		primaryStage.setResizable(false);

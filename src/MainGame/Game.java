@@ -84,7 +84,7 @@ public class Game{
 	 * </pre>
 	 */
 	public Game(){
-		this.setGameMode(GAMEMODE.MIDDLE);
+		this.setGameMode(GAMEMODE.PRIMARY);
 		this.sweepType = Square.sweepType.SINGLE;
 		this.scheme = Scheme.B;
 		thisPlayer = recorder.players[0];
@@ -292,6 +292,7 @@ public class Game{
 	}
 	
 	public void renewTextInfo(){
+		
 		this.getScoreA().setText("" + this.recorder.players[0].getScore());
 		this.getMistakeA().setText("" + this.recorder.players[0].getMistake());
 		this.getScoreB().setText("" + this.recorder.players[1].getScore());
@@ -582,7 +583,27 @@ public class Game{
 		this.infoArea = infoArea;
 	}
 	
+	public void clearGame(){
+		
+		this.recorder.players[0].setScore(0);
+		this.recorder.players[0].setMistake(0);
+		this.recorder.players[1].setScore(0);
+		this.recorder.players[1].setMistake(0);
+		this.recorder.getStepList().clear();
+		this.recorder.getStep().clear();
+		this.recorder.unOpenBooms.clear();
+		this.recorder.allBooms.clear();
+		
+		if(this.stepCount != 0){
+			this.setStepCount(0);
+		}
+		
+		this.renewTextInfo();
+		
+	}
+	
 	public void cheatMode(Boolean bool){
+		
 		if(bool){
 			for(int i : recorder.unOpenBooms){
 				this.getBlocks()[i - 1].openHere(false);
@@ -630,9 +651,22 @@ public class Game{
 		private ArrayList<Integer> unOpenBooms = new ArrayList<Integer>();
 		private ArrayList<Integer> allBooms = new ArrayList<Integer>();
 		private int[][] inner = null;
-		
 		private ArrayList<ArrayList<Integer>> stepList = new ArrayList<>();
 		private ArrayList<Integer> step = new ArrayList<>();
+		
+		public void clear(){
+			this.players[0].setScore(0);
+			this.players[0].setMistake(0);
+			this.players[1].setScore(0);
+			this.players[1].setMistake(0);
+			this.players[2].setScore(0);
+			this.players[2].setMistake(0);
+			this.step.clear();
+			this.stepList.clear();
+			this.playerNumber = 1;
+			this.players[0].playerName = "A";
+			
+		}
 		
 		public int getStepsChance(){
 			return this.stepsChance;

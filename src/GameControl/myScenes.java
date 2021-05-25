@@ -357,6 +357,7 @@ public class myScenes{
 			gameStart.thisGame.setScheme(Scheme.A);
 		});
 		RadioButton btnSchemeB = new RadioButton("Scheme B");
+		btnSchemeB.setSelected(true);
 		
 		btnSchemeB.setSelected(true);
 		btnSchemeB.setPrefWidth(160);
@@ -395,7 +396,6 @@ public class myScenes{
 		sliderSteps.setMinorTickCount(0);
 		sliderSteps.setSnapToTicks(true);
 		sliderSteps.setPrefWidth(200);
-		gameStart.thisGame.getRecorder().setPlayerNumber(1);
 		
 		sliderSteps.setOnMouseDragged(event -> {
 			gameStart.thisGame.getRecorder().setStepsChance((int) sliderSteps.getValue());
@@ -542,8 +542,6 @@ public class myScenes{
 		// 开始游戏按钮和返回菜单按钮
 		Button btnGameStart = new Button("开始游戏");
 		btnGameStart.setOnAction(event -> {
-			// 游戏初始化内容检验
-//			System.out.println("玩家数量：" + gameStart.thisGame.getRecorder().getPlayerNumber());
 			
 			if(btnSelf.isSelected()){
 				if(!gameStart.thisGame.getGameMode().equals(Game.GAMEMODE.SELF)){
@@ -559,6 +557,7 @@ public class myScenes{
 					btnOK.setOnAction(event1 -> {
 						gameStartWarning.close();
 						createGameScene();
+						gameStart.thisGame.clearGame();
 						primaryStage.setTitle(gameStart.thisGame.getName());
 						primaryStage.setScene(gameStart.thisGame.mapScenes.get("GameScene"));
 					});
@@ -577,8 +576,12 @@ public class myScenes{
 					gameStartWarning.setScene(new Scene(flSelfWarning));
 					gameStartWarning.setResizable(false);
 					gameStartWarning.show();
-				} else{
+				}
+				// 正常开始游戏
+				else{
 					createGameScene();
+					gameStart.thisGame.clearGame();
+					
 					primaryStage.setTitle(gameStart.thisGame.getName());
 					primaryStage.setScene(gameStart.thisGame.mapScenes.get("GameScene"));
 				}
@@ -587,8 +590,8 @@ public class myScenes{
 			if(btnTwoPlayer.isSelected()){
 				gameStart.thisGame.getRecorder().setStepsChance((int) sliderSteps.getValue());
 			}
-			
 			createGameScene();
+			gameStart.thisGame.clearGame();
 			
 			gameStart.thisGame.getRecorder().setWidth(gameStart.thisGame.getWidth());
 			gameStart.thisGame.getRecorder().setHeight(gameStart.thisGame.getHeight());

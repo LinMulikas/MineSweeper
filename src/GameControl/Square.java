@@ -637,7 +637,7 @@ public class Square extends Block{
 						if(iSquare.findInnerNumber() == 9){
 							gameStart.thisGame.getRecorder().getUnOpenBooms().remove(gameStart.thisGame.getRecorder().getUnOpenBooms().indexOf(iSquare.getNumId()));
 							gameStart.thisGame.getThisPlayer().minusScore();
-							gameStart.thisGame.getThisPlayer().addMistake();
+//							gameStart.thisGame.getThisPlayer().addMistake();
 							gameStart.thisGame.getInfoArea().appendText("\n");
 							gameStart.thisGame.getInfoArea().appendText("\n");
 							gameStart.thisGame.getInfoArea().appendText("玩家" + gameStart.thisGame.getThisPlayer().playerName
@@ -648,7 +648,7 @@ public class Square extends Block{
 						}
 						// 如果没踩雷
 						else{
-							gameStart.thisGame.getThisPlayer().addScore();
+//							gameStart.thisGame.getThisPlayer().addScore();
 							gameStart.thisGame.getThisScoreText().setText("" + gameStart.thisGame.getThisPlayer().getScore());
 							gameStart.thisGame.judgeWinner();
 						}
@@ -690,7 +690,7 @@ public class Square extends Block{
 							// 记录失误数
 							gameStart.thisGame.getInfoArea().appendText("玩家" + gameStart.thisGame.getThisPlayer().playerName
 									+ "标记错误！");
-							gameStart.thisGame.getThisPlayer().minusScore();
+//							gameStart.thisGame.getThisPlayer().minusScore();
 							gameStart.thisGame.getThisPlayer().addMistake();
 							gameStart.thisGame.getThisScoreText().setText("" + gameStart.thisGame.getThisPlayer().getScore());
 							gameStart.thisGame.getThisMistakeText().setText("" + gameStart.thisGame.getThisPlayer().getMistake());
