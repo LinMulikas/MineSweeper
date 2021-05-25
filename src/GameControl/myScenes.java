@@ -148,6 +148,7 @@ public class myScenes{
 				gameNameWarning.setResizable(false);
 				gameNameWarning.show();
 			} else{
+				System.out.println(txtGameName.getText());
 				gameStart.thisGame.setName(txtGameName.getText());
 			}
 		});
@@ -647,6 +648,7 @@ public class myScenes{
 		flowPane.setAlignment(Pos.CENTER);
 		flowPane.setPrefSize(1200, 800);
 		flowPane.setVgap(120);
+		
 		flowPane.setStyle(
 				" -fx-background-image: url(" + "file:src/Resource/Image/Useful/Launcher.jpg" + "); " +
 						" -fx-background-size: 120%;");
@@ -684,6 +686,7 @@ public class myScenes{
 		Button btn4 = new Button("录像回放");
 		btn4.setPrefSize(200, 80);
 		btn4.setOnAction(event -> {
+			createRecordLoadScene();
 			primaryStage.setTitle("本地录像");
 			primaryStage.setScene(gameStart.thisGame.mapScenes.get("LoadRecord"));
 		});
@@ -812,7 +815,7 @@ public class myScenes{
 		fileTreeView.setOnMouseClicked(event -> {
 			if(event.getClickCount() == 2){
 				TreeItem<File> item = fileTreeView.getSelectionModel().getSelectedItem();
-				System.out.println(item.getValue());
+//				System.out.println(item.getValue());
 				gameStart.thisGame.loadRecord(item.getValue());
 				
 			}
@@ -826,6 +829,9 @@ public class myScenes{
 		});
 		vboxLoadGame.getChildren().addAll(fileTreeView, btnLoadToMain);
 		vboxLoadGame.setPrefWidth(800);
+		
+		vboxLoadGame.setStyle(" -fx-background-image: url(" + "file:src/Resource/Image/Useful/RankScene.jpg" + "); " +
+				" -fx-background-size: 120%;");
 		
 		RecordLoader = new Scene(vboxLoadGame);
 		
@@ -1048,6 +1054,8 @@ public class myScenes{
 		gameStart.thisGame.setMistakeA(txtMistakeA);
 		
 		Label labPlayerB = new Label("PlayerB:");
+		gameStart.thisGame.setLabPlayerB(labPlayerB);
+		
 		Text txtScoreB = new Text("0");
 		Text txtMistakeB = new Text("0");
 		gameStart.thisGame.setScoreB(txtScoreB);
@@ -1110,7 +1118,14 @@ public class myScenes{
 		VBox vboxGamePane = new VBox();
 		vboxGamePane.getChildren().addAll(menuBarGame, flowGamePane);
 		
+		flowGamePane.setStyle(
+				" -fx-background-image: url(" + "file:src/Resource/Image/Useful/GameScene.jpg" + "); " +
+						" -fx-background-size: 120%;");
+		
 		GameScene = new Scene(vboxGamePane);
+		
+		gameStart.thisGame.getRecorder().setInner(gameStart.thisGame.getInnerArea());
+		
 		gameStart.thisGame.mapScenes.put("GameScene", GameScene);
 		return gameStart.thisGame.mapScenes.get("GameScene");
 	}

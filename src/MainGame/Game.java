@@ -3,25 +3,22 @@ package MainGame;
 import GameControl.Block;
 import GameControl.Position;
 import GameControl.Square;
-import GameControl.rankPlayer;
 import Resource.Scheme.Scheme;
 import javafx.scene.Scene;
-import javafx.scene.control.Button;
+import javafx.scene.control.Label;
 import javafx.scene.control.TextArea;
-import javafx.scene.control.TreeView;
 import javafx.scene.layout.GridPane;
 import javafx.scene.text.Text;
 import javafx.stage.Stage;
 
 import java.io.*;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
 
 import static GameControl.myScenes.createGameScene;
 import static GameControl.myScenes.primaryStage;
 
 public class Game{
+	static int countRecord = 0;
 	/**
 	 * 视觉组件
 	 */
@@ -38,6 +35,7 @@ public class Game{
 	private Text scoreB = null;
 	private Text mistakeA = null;
 	private Text mistakeB = null;
+	private Label labPlayerB = null;
 	// 信息面板
 	private TextArea infoArea = null;
 	// Winner
@@ -53,6 +51,7 @@ public class Game{
 	private String GameName;
 	private int BoomsNumber;
 	private int MaxBoomsNumber;
+	private int playID;
 	
 	private Player thisPlayer = null;
 	// 游戏中的按钮对象
@@ -198,12 +197,21 @@ public class Game{
 	}
 	
 	public void loadRecord(File file){
+		
+		countRecord = 0;
+
+//		System.out.println("1");
 		Recorder theRecord = loadSave(file);
-		this.setRecorder(theRecord);
 		
 		this.setName(file.getName().substring(0, file.getName().length() - 4));
-		this.setWidth(this.recorder.width);
-		this.setHeight(this.recorder.height);
+		this.setWidth(theRecord.width);
+		this.setHeight(theRecord.height);
+
+//		createGameScene();
+
+//		this.setRecorder(theRecord);
+
+//		System.out.println(recorder.getStepCount());
 		
 		this.recorder.stepList.clear();
 		this.recorder.step.clear();
@@ -211,25 +219,114 @@ public class Game{
 		this.setStepCount(0);
 		createGameScene();
 		
-		this.setInnerArea(this.recorder.inner);
+		this.setInnerArea(theRecord.inner);
 		
 		primaryStage.setTitle(gameStart.thisGame.getName());
 		primaryStage.setScene(gameStart.thisGame.mapScenes.get("GameScene"));
 		
-		for(ArrayList<Integer> stepList : recorder.stepList){
-			System.out.println("SSS");
-			for(int i : stepList){
-				System.out.println(i);
-				try{
-					Thread.sleep(100);
-				}
-				catch(InterruptedException e1){
-					//捕获异常
-					e1.printStackTrace();
-				}
-				this.Blocks[i - 1].openHere(false);
+		Timer timmer = new Timer();
+		ArrayList<Integer> allID = new ArrayList<Integer>();
+		
+		for(ArrayList<Integer> list : theRecord.stepList){
+			for(int i : list){
+				allID.add(i);
 			}
 		}
+
+//		System.out.println(allID.toString());
+		
+		this.getScoreA().setText("0");
+		this.getMistakeA().setText("0");
+		
+		if(theRecord.getPlayerNumber() == 2){
+			this.getScoreB().setVisible(true);
+			this.getScoreB().setText("0");
+			this.getMistakeB().setVisible(true);
+			this.getMistakeB().setText("0");
+			this.getLabPlayerB().setVisible(true);
+			
+		}
+		
+		timmer.schedule(new TimerTask(){
+			@Override
+			public void run(){
+				thisPlayer = getThisPlayer(countRecord + 1, theRecord.getStepsChance());
+				if(countRecord < allID.size() - 1){
+//					System.out.println(allID.get(countRecord));
+					Square iSquare = gameStart.thisGame.getBlocks()[allID.get(countRecord) - 1];
+					iSquare.openHere(true);
+					gameStart.thisGame.getRecorder().update();
+					gameStart.thisGame.getRecorder().getOpenedID().add(iSquare.getNumId());
+					
+					// 信息输出
+					gameStart.thisGame.getInfoArea().appendText("\n");
+					gameStart.thisGame.getInfoArea().appendText("\n");
+					gameStart.thisGame.getInfoArea().appendText("第" + (countRecord + 1) + "步：\n"
+					);
+					gameStart.thisGame.getInfoArea().appendText("玩家" +
+							gameStart.thisGame.getThisPlayer().playerName +
+							"点击了(" + iSquare.getX() + "," + iSquare.getY() + ").");
+					// 信息板更新
+//						// 临时检验
+//						for(int i : gameStart.thisGame.getRecorder().getStep()){
+//							System.out.printf("%d ", i);
+//						}
+					
+					// 更新分数
+					// 如果踩雷了
+					if(iSquare.findInnerNumber() == 9){
+						gameStart.thisGame.getThisPlayer().minusScore();
+						gameStart.thisGame.getInfoArea().appendText("\n");
+						gameStart.thisGame.getInfoArea().appendText("\n");
+						gameStart.thisGame.getInfoArea().appendText("玩家" + gameStart.thisGame.getThisPlayer().playerName
+								+ "踩中了地雷！\n");
+						gameStart.thisGame.getThisScoreText().setText("" + gameStart.thisGame.getThisPlayer().getScore());
+						gameStart.thisGame.getThisMistakeText().setText("" + gameStart.thisGame.getThisPlayer().getMistake());
+						
+						// 双人模式的信息提示
+						if(gameStart.thisGame.getRecorder().getPlayerNumber() == 2){
+							int lastChance =
+									gameStart.thisGame.getStepCount()%gameStart.thisGame.getRecorder().getStepsChance();
+							
+							if(lastChance == 0){
+								String name;
+								if(gameStart.thisGame.getThisPlayer() == gameStart.thisGame.getRecorder().getPlayers()[0]){
+									name = gameStart.thisGame.getRecorder().getPlayers()[1].playerName;
+								} else{
+									name = gameStart.thisGame.getRecorder().getPlayers()[0].playerName;
+								}
+								gameStart.thisGame.getInfoArea().appendText("\n现在是" + name + "的回合！\n");
+							} else{
+								gameStart.thisGame.getInfoArea().appendText("\n" + gameStart.thisGame.getThisPlayer().playerName + "还有" + (gameStart.thisGame.getRecorder().getStepsChance() - lastChance) + "步！\n");
+							}
+						}
+					}
+					// 如果没踩雷
+					else{
+//							gameStart.thisGame.getThisPlayer().addScore();
+						gameStart.thisGame.getThisScoreText().setText("" + gameStart.thisGame.getThisPlayer().getScore());
+						// 双人模式的信息提示
+						if(gameStart.thisGame.getRecorder().getPlayerNumber() == 2){
+							int lastChance =
+									gameStart.thisGame.getStepCount()%gameStart.thisGame.getRecorder().getStepsChance();
+							
+							if(lastChance == 0){
+								String name;
+								if(gameStart.thisGame.getThisPlayer() == gameStart.thisGame.getRecorder().getPlayers()[0]){
+									name = gameStart.thisGame.getRecorder().getPlayers()[1].playerName;
+								} else{
+									name = gameStart.thisGame.getRecorder().getPlayers()[0].playerName;
+								}
+								gameStart.thisGame.getInfoArea().appendText("\n现在是" + name + "的回合！\n");
+							} else{
+								gameStart.thisGame.getInfoArea().appendText("\n" + gameStart.thisGame.getThisPlayer().playerName + "还有" + (gameStart.thisGame.getRecorder().getStepsChance() - lastChance) + "步！\n");
+							}
+						}
+					}
+				}
+				countRecord++;
+			}
+		}, 10, 500);
 		
 	}
 	
@@ -579,6 +676,23 @@ public class Game{
 		this.thisPlayer = thisPlayer;
 	}
 	
+	public Player getThisPlayer(int stepCount, int chance){
+		int a =
+				(stepCount - 1)/chance;
+		
+		int b = a%2;
+		
+		// 加到玩家头上
+		if(b == 0){
+			thisPlayer = recorder.players[0];
+		}
+		if(b == 1){
+			thisPlayer = recorder.players[1];
+		}
+		
+		return thisPlayer;
+	}
+	
 	public Text getScoreA(){
 		return scoreA;
 	}
@@ -731,6 +845,22 @@ public class Game{
 	
 	public void setGridBooms(GridPane gridBooms){
 		this.gridBooms = gridBooms;
+	}
+	
+	public int getPlayID(){
+		return playID;
+	}
+	
+	public void setPlayID(int playID){
+		this.playID = playID;
+	}
+	
+	public Label getLabPlayerB(){
+		return labPlayerB;
+	}
+	
+	public void setLabPlayerB(Label labPlayerB){
+		this.labPlayerB = labPlayerB;
 	}
 	
 	public enum GAMEMODE{
